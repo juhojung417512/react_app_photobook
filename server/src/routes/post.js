@@ -1,20 +1,25 @@
 import express from 'express';
+import multer from 'multer'
 import mysql from '../../scripts/sqlmgr'
+import fs from "fs"
+import path from "path"
 
 const router = express.Router();
+const storage = multer({ dest: '../../photos', limits: { fileSize: 5 * 1024 * 1024 } }) 
+const upload = storage.single('file');
 
-router.get('/',(req,res)=>{
-    return res.json({
-        success: true
+let filename
+router.post("/upload/file",upload,(req,res)=>{
+    let img_id = Math.floor(Math.random() * 10000).toString() + req.file.originalname ;
+    fs.rename(req.file.path, 'photos/'+ img_id ,(err)=>{
+        if(err){
+            console.log(err)
+            filename = null
+        }
     })
+    filename = 'photos/'+ img_id
+    return res.json({filename: filename})
 })
-
-router.get('/:id', (req, res) => {
-    console.log('reading post ', req.params.id);
-    return res.json({
-        index: req.params.id
-    });
-});
 
 router.post('/login', async (req, res) => {
     console.log('reading post ', req.body);
@@ -30,5 +35,6 @@ router.post('/login', async (req, res) => {
         pw: data.pw
     });
 });
+
 
 export default router;

@@ -90,8 +90,7 @@ export default class extends Component {
                 </div>
                 <div className="photo-square">
                     {this.state.photoList.map((item)=>{
-                        console.log(item)
-                        return (<div className="photoList" key={item}><img src={item}/></div>)
+                        return (<div className="photo" key={item}><img src={item} alt={item+"-desc"}/></div>)
                     })}
                 </div> 
             </div>

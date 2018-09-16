@@ -42,17 +42,19 @@ export default class extends Component {
 
     onChange = async(ev)=>{
         if(ev.target.files.length === 0)
-            return alert("사진 불러오기 실패! (업로드한 파일이 없습니다.)")
+            return alert("사진 불러오기 실패! (업로드한 파일이 없습니다)")
         else if(ev.target.files[0].size > this.state.maximumPhotoSize)
-            return alert("사진 불러오기 실패! (5MB 이상의 사진은 전송할 수 없습니다.)")
+            return alert("사진 불러오기 실패! (5MB 이상의 사진은 전송할 수 없습니다)")
         let _ = ev.target.files[0].name.split('.')
         let file_ext = _[_.length-1]
         if(this.fileExtList.findIndex((item)=>{return item === file_ext}) === -1)
-            return alert("사진 불러오기 실패! (지원하지 않는 확장자 입니다.)")
+            return alert("사진 불러오기 실패! (지원하지 않는 확장자 입니다)")
         
         let res = await Network.init().postUploadAjax(ev.target.files[0])
-        if('filename' in res)
-            this.props.setPhoto(res.filename) // postuploadajax serverside need
+        if('filename' in res && res.filename !== null)
+            this.props.setPhoto(res.filename)
+        else
+            alert("사진 불러오기 실패! (관리자에게 문의해주세요)")
     }
 
     render() {

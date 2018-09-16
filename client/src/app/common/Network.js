@@ -10,12 +10,12 @@ export default class Network{
 
     async get(url,...data){
         console.log(data)
-        let res = await fetch(url)
+        let res = await fetch('/api/get'+url)
         return res.json();
     }
 
     async post(url,...data){
-        let res = await fetch(url, {
+        let res = await fetch('/api/post'+ url, {
             method: 'post',
             body: JSON.stringify(data),
             headers: {
@@ -30,7 +30,7 @@ export default class Network{
         let form = new FormData();
         form.append("file",file)
         
-        let res = await fetch('/upload/file',{
+        let res = await fetch('/api/post/upload/file',{
             method: 'POST',
             body: form
         })

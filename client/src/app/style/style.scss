@@ -111,6 +111,14 @@ body{
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                overflow: hidden;
+                .photo{
+                    flex:1;
+                    img{
+                        width:400px;
+                        height: 200px
+                    }
+                }
             }
             .left{
                 flex:1;

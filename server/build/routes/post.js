@@ -8,25 +8,39 @@ var _express = require('express');
 
 var _express2 = _interopRequireDefault(_express);
 
+var _multer = require('multer');
+
+var _multer2 = _interopRequireDefault(_multer);
+
 var _sqlmgr = require('../../scripts/sqlmgr');
 
 var _sqlmgr2 = _interopRequireDefault(_sqlmgr);
 
+var _fs = require('fs');
+
+var _fs2 = _interopRequireDefault(_fs);
+
+var _path = require('path');
+
+var _path2 = _interopRequireDefault(_path);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var router = _express2.default.Router();
+var storage = (0, _multer2.default)({ dest: '../../photos', limits: { fileSize: 5 * 1024 * 1024 } });
+var upload = storage.single('file');
 
-router.get('/', function (req, res) {
-    return res.json({
-        success: true
+var filename = void 0;
+router.post("/upload/file", upload, function (req, res) {
+    var img_id = Math.floor(Math.random() * 10000).toString() + req.file.originalname;
+    _fs2.default.rename(req.file.path, 'photos/' + img_id, function (err) {
+        if (err) {
+            console.log(err);
+            filename = null;
+        }
     });
-});
-
-router.get('/:id', function (req, res) {
-    console.log('reading post ', req.params.id);
-    return res.json({
-        index: req.params.id
-    });
+    filename = 'photos/' + img_id;
+    return res.json({ filename: filename });
 });
 
 router.post('/login', async function (req, res) {
