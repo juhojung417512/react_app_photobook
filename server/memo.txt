@@ -1,0 +1,3 @@
+1. 이미지 밝기조절 -> html css brightness gray scale
+2. 이미지 저장 -> db에 각 데이터를 저장해야함 ( s3 .json file create -> download about db row)
+3. 스티커 이동 -> https://jsfiddle.net/zL4vmq0L/ 뭐 이런식으로 이동 , drag & drop -> https://www.npmjs.com/package/react-drag-and-drop
