@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import { DropTarget } from 'react-dnd';
 
 import Square from './square.comp';
-import Game from '../common/fileSystem';
+import f_system from '../common/fileSystem';
 import { ItemTypes } from '../common/constants';
 
 const squareTarget = {
     drop(props) {
-        Game.init().moveFolder(props.x, props.y)
+        f_system.init().moveFolder(props.x, props.y)
     }
 };
 
@@ -30,16 +30,25 @@ export default class Board extends Component {
 
     render() {
         const { x, y, connectDropTarget, isOver } = this.props;
-        const black = (x + y) % 2 === 1;
-
-        return connectDropTarget(
-            <div className="board">
-                <Square black={black}>
-                    {this.props.children}
-                </Square>
-                {isOver &&
-                    <div className="isOver"/>}
-            </div>
-        );
+        if(this.props.isTemplate){
+            return connectDropTarget(
+                <div className="board">
+                    <Square>
+                        {this.props.children}
+                    </Square>
+                    {isOver &&
+                        <div className="isOver"/>}
+                </div>
+            );
+        } else{
+            return(
+                <div className="board">
+                    <Square>
+                        {this.props.children}
+                    </Square>
+                </div>
+            );
+        }
+        
     }
 }

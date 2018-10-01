@@ -1,5 +1,6 @@
 export default class Network{
     static singletone = null
+    static params = null
 
     static init(){
         if(Network.singletone == null){
@@ -9,8 +10,7 @@ export default class Network{
     }
 
     async get(url,...data){
-        console.log(data)
-        let res = await fetch('/api/get'+url)
+        let res = await fetch('/api/get'+url+data.join('/'))
         return res.json();
     }
 
@@ -26,7 +26,7 @@ export default class Network{
         return res.json();
     }
     
-    async postUploadAjax(file){
+    async UploadFile(file){
         let form = new FormData();
         form.append("file",file)
         

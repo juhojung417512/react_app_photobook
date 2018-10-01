@@ -2,6 +2,7 @@
 body{
     margin:0;
     padding:0;
+    overflow: hidden;
 }
 
 .modal-container {
@@ -15,6 +16,16 @@ body{
     overflow: auto; /* Enable scroll if needed */
     background-color: rgb(0,0,0); /* Fallback color */
     background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
+}
+
+.zindex-1{
+    z-index: 1;
+}
+.zindex-2{
+    z-index:2;
+}
+.zindex-3{
+    z-index:3;
 }
 
 .App{
@@ -92,12 +103,17 @@ body{
                 }
                 .dropdown-list{
                     display: block;
+                    background-color: #F7F7F7;
                     position: absolute;
                     cursor: pointer;
-                    right: 70px;
-                    top: 90px;
+                    right: 120px;
+                    top: 45px;
                     >div{
                         border: 1px solid black;
+
+                        &:hover{
+                            background-color: #EBEBEB
+                        }
                     }
                 }
             }
@@ -106,17 +122,115 @@ body{
             display:flex;
             flex-direction: row;
             flex:20;
-            .photo-square{
-                flex:4;
+            .filedir{
+                flex:1;
                 display: flex;
+                flex-wrap: wrap;
+                flex-direction: column;
+                .folder-background{
+                    display: flex;
+                    flex:1;
+                    .board{
+                        position: relative;
+                        width: 100%;
+                        height: 100%;
+                        img{
+                            width:100px;
+                            height:100px;
+                        }
+                        .squre{
+                            width: 100%;
+                            height: 100%;
+                        }
+                        .isOver{ // when : mouse on board
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            height: 100%;
+                            width: 100%;
+                            z-index: 1;
+                            opacity: 0.5;
+                            background-color : #005ED4 ;
+                        }
+                    }
+                }
+            }
+            .frame{
+                flex:4;
+                display:flex;
                 justify-content: center;
                 align-items: center;
-                overflow: hidden;
-                .photo{
-                    flex:1;
+                .slot{
+                    position: absolute;
+                    .text-box{
+                        width: 100%;
+                        height: 100%;
+                    }
+                    .slot-box{
+                        transform: translate(0,-3px);
+                        position: relative;
+                        .text-div{
+                            width: 100%;
+                            height: 15px;
+                            border : 1px dashed;
+                            font-size: 13px;
+                            margin-bottom: 10px;
+                            text-align: center;
+                            align-items: center;
+                            justify-content: center;
+                            cursor: pointer;
+                        }
+                        .handle{
+                            flex:1;
+                            display: flex;
+                            
+                        }
+                        .exit-div{
+                            flex:1;
+                            display:flex;
+                        }
+                        .text-toolbox{
+                            display: flex;
+                            flex:1;
+                            .color-opener{
+                                display: flex;
+                            }
+                        }
+                        i{
+                            flex:1;
+                            font-size:20px;
+                            cursor: pointer;
+                        }
+                    }
                     img{
-                        width:400px;
-                        height: 200px
+                        width:100%;
+                        height:100%;
+                    }
+                }
+                
+                .frame-img{
+                    position:fixed;
+                    width: 60%;
+                    height: 80%;
+                }
+                .photo-square{
+                    height: 100%;
+                    width: 100%;
+                    flex:1;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    overflow: hidden;
+                    .photo{
+                        flex:1;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        img{
+                            position: relative;
+                            width:400px;
+                            height: 200px
+                        }
                     }
                 }
             }
@@ -126,38 +240,60 @@ body{
                 .tools{
                     flex:1;
                     display: flex;
+                    justify-content: center;
+                    align-items: center;
                     flex-direction: column;
                     border: 1px solid black;
-                }
-                .filedir{
-                    flex:1;
-                    display: flex;
-                    flex-wrap: wrap;
-                    flex-direction: column;
-                    .folder-background{
-                        display: flex;
+
+                    .textbox-div{
+                        width:100%;
                         flex:1;
-                        .board{
-                            position: relative;
-                            width: 100%;
-                            height: 100%;
-                            .squre{
-                                width: 100%;
-                                height: 100%;
+                        display:flex;
+                        justify-content: center;
+                        align-items: center;
+                        >button{
+                            width: 100px;
+                            height: 50px;
+                        }
+                    }
+                    
+                    .photo-upload{
+                        width:100%;
+                        flex:1;
+                        display:flex;
+                        justify-content: center;
+                        align-items: center;
+                        >button{
+                            width: 100px;
+                            height: 50px;
+                        }
+                    }
+                    .template-list{
+                        width:100%;
+                        flex:5;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        .template-icon{
+                            width:100%;
+                            flex:1;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            >img{
+                                width:100%;
+                                height:50%;
+                                cursor: pointer;
                             }
-                            .isOver{ // when : mouse on board
-                                position: absolute;
-                                top: 0;
-                                left: 0;
-                                height: 100%;
-                                width: 100%;
-                                z-index: 1;
-                                opacity: 0.5;
-                                background-color: yellow;
-                            }
+                        }
+                        button{
+                            margin-bottom: 10px;
+                            height: 50px;
+                            width:100px;
                         }
                     }
                 }
+                
             }
         }
         

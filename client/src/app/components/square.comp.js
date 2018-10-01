@@ -7,12 +7,8 @@ export default class Square extends Component {
     };
 
     render() {
-        const { black } = this.props;
-        const fill = black ? 'black' : 'white';
-        const stroke = black ? 'white' : 'black';
-
         return (
-        <div className="squre" style={{backgroundColor: fill, color: stroke}}>
+        <div className="squre">
             {this.props.children}
         </div>
         );

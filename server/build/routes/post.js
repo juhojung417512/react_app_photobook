@@ -43,6 +43,11 @@ router.post("/upload/file", upload, function (req, res) {
     return res.json({ filename: filename });
 });
 
+router.post("/upload/photobook", function (req, res) {
+    var imageData = req;
+    console.log(imageData);
+});
+
 router.post('/login', async function (req, res) {
     console.log('reading post ', req.body);
     var data = req.body[0];

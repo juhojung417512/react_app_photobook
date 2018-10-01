@@ -21,6 +21,11 @@ router.post("/upload/file",upload,(req,res)=>{
     return res.json({filename: filename})
 })
 
+router.post("/upload/photobook",(req,res)=>{
+    let imageData = req
+    console.log(imageData)
+})
+
 router.post('/login', async (req, res) => {
     console.log('reading post ', req.body);
     let data = req.body[0]

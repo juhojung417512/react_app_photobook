@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './app/style/style.scss'
-import Template from './app/components/template.comp';
+import Layout from './app/components/layout.comp';
 import registerServiceWorker from './registerServiceWorker';
 import { Router, Route, Switch } from "react-router-dom"
 import { createStore , applyMiddleware } from 'redux';
@@ -47,14 +47,14 @@ Store(store)
 ReactDOM.render(
     <Router history={history}>
         <Provider store={store}>
-            <Template>
+            <Layout>
                 <Route render={({ location }) => (<PageTransition timeout={500}>
                     <Switch location={location}>
                         <Route exact path="/" component={LoginPage} />
                         <Route path="/main" component={MainPage} />
                     </Switch>
                 </PageTransition>)}/>
-            </Template>
+            </Layout>
         </Provider>
     </Router>,
     document.getElementById('root'));

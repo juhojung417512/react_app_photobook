@@ -1,4 +1,5 @@
 import express from 'express';
+import mysql from '../../scripts/sqlmgr'
 const router = express.Router();
 
 router.get('/',(req,res)=>{
@@ -7,11 +8,18 @@ router.get('/',(req,res)=>{
     })
 })
 
-router.get('/:id', (req, res) => {
-    console.log('reading post ', req.params.id);
+router.get('/templates',async (req,res)=>{
+    let template_list = await mysql.getTemplates()
     return res.json({
-        index: req.params.id
-    });
-});
+        templateList : template_list.length === 0 ? null : template_list
+    })
+})
+
+router.get('/template/:id',async (req,res)=>{
+    let template = await mysql.getTemplateById(req.params.id)
+    return res.json({
+        template : template
+    })
+})
 
 export default router;

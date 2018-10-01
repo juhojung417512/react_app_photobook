@@ -8,6 +8,10 @@ var _express = require('express');
 
 var _express2 = _interopRequireDefault(_express);
 
+var _sqlmgr = require('../../scripts/sqlmgr');
+
+var _sqlmgr2 = _interopRequireDefault(_sqlmgr);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var router = _express2.default.Router();
@@ -18,10 +22,17 @@ router.get('/', function (req, res) {
     });
 });
 
-router.get('/:id', function (req, res) {
-    console.log('reading post ', req.params.id);
+router.get('/templates', async function (req, res) {
+    var template_list = await _sqlmgr2.default.getTemplates();
     return res.json({
-        index: req.params.id
+        templateList: template_list.length === 0 ? null : template_list
+    });
+});
+
+router.get('/template/:id', async function (req, res) {
+    var template = await _sqlmgr2.default.getTemplateById(req.params.id);
+    return res.json({
+        template: template
     });
 });
 

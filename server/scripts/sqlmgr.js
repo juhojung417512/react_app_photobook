@@ -15,6 +15,21 @@ class SQLMgr {
                 AND pw = ?
         `, [id, pw])
     }
+
+    async getTemplates(){
+        return await this.mysql.query(`
+            SELECT *
+            FROM template
+        `)
+    }
+
+    async getTemplateById(id){
+        return await this.mysql.querySelectOne(`
+            SELECT *
+            FROM template
+            WHERE templateId = ?
+        `,[id])
+    }
 }
 
 module.exports = new SQLMgr()

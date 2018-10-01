@@ -5,7 +5,10 @@ import { ItemTypes } from '../common/constants';
 
 const folderSource = {
     beginDrag(props) {
-        return {};
+        return {
+            id : props.id,
+            img_src : props.img_src
+        };
     }
 };
 function collect(connect, monitor){
@@ -22,15 +25,15 @@ export default class extends Component {
     };
 
     render() {
-        const { connectDragSource, isDragging } = this.props;
+        const { id, img_src, connectDragSource, isDragging } = this.props;
+        if(isDragging === true && this.props.targetId !== id)
+            this.props.setTargetId(id)
         return connectDragSource(
             <div style={{
                 opacity: isDragging ? 0.5 : 1,
-                fontSize: 25,
-                fontWeight: 'bold',
                 cursor: 'move'
             }}>
-            ♘
+                <img draggable={false} className="folder" alt="sticker" src={img_src}></img>
             </div>
         );
     }
