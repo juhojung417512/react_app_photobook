@@ -37,6 +37,9 @@ export default class extends Component {
     }
 
     onChange = (e) => {
+        if(e.keycode === 13){
+            return this.onClickLogin()
+        }
         this.setState({
             [e.target.name]: e.target.value
         })

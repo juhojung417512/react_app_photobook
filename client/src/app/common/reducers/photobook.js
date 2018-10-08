@@ -4,6 +4,11 @@ import {
     RESET_TEMPLATE_INFO,
     CREATE_PHOTOBOOK,
     UPLOAD_PHOTOBOOK,
+    CREATE_PHOTO,
+    DELETE_PHOTO,
+    RESET_PHOTO_STATE,
+    DRAG_PHOTO,
+    RESIZE_PHOTO,
     GET_STICKERS,
     CREATE_STICKER,
     DELETE_STICKER,
@@ -21,10 +26,11 @@ import {HistoryManager} from "../utils"
 let initialState={
     template : null,
     templateList : null,
-    sticker : null,
     isCreate : false,
+    photoSrc : null,
     stickerList : null,
     stickerId : null,
+    isPhoto : false,
     isSticker : false,
     isTextBox : false,
     undo : null,
@@ -65,6 +71,30 @@ export default function photobook(state=initialState, action){
             return{
                 ...state,
                 isCreate : action.payload
+            }
+        case CREATE_PHOTO : 
+            return {
+                ...state,
+                isPhoto: true,
+                photoSrc : action.payload
+            }
+        case DELETE_PHOTO :
+            return{
+                ...state
+            }
+        case RESET_PHOTO_STATE : 
+            return {
+                ...state,
+                isPhoto : false,
+                photoSrc : null
+            }
+        case DRAG_PHOTO : 
+            return {
+                ...state
+            }
+        case RESIZE_PHOTO : 
+            return {
+                ...state
             }
         case GET_STICKERS : 
             return{

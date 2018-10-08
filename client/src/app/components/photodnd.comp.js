@@ -4,10 +4,10 @@ import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import PropTypes from 'prop-types';
 
-import f_system from '../common/FileSystem'
+import p_system from '../common/PhotoSystem'
 import history from '../common/history';
-import Folder from './folder.comp'
-import Board from './board.comp'
+import Photo from './photo.comp'
+import PhotoBoard from './photoboard.comp'
 
 @hot(module)
 @DragDropContext(HTML5Backend)
@@ -17,7 +17,6 @@ export default class extends Component {
         this.state={
             folderPosition : [0,0],
             targetId : null,
-            stickerSrc : "/photos/sticker1.png"
         };
     }
 
@@ -28,7 +27,7 @@ export default class extends Component {
     }
     
     componentDidMount() {
-        f_system.init().setObserver(this.observer)
+        p_system.init().setObserver(this.observer)
     }
 
     static propTypes = {
@@ -44,17 +43,17 @@ export default class extends Component {
         {
             return (
                 <div key={i} className={"folder-background"} style={{position:"absolute",right:132,bottom:173,width:"57%",height:"62%", zIndex:1}}>
-                    <Board x={x} y={y} isTemplate={true}>
+                    <PhotoBoard x={x} y={y} isTemplate={true}>
                         {this.renderPiece(x, y, i)}
-                    </Board>
+                    </PhotoBoard>
                 </div>
             );
         } else{
             return (
                 <div key={i} className={"folder-background"}>
-                    <Board x={x} y={y} isTemplate={false}>
+                    <PhotoBoard x={x} y={y} isTemplate={false}>
                         {this.renderPiece(x, y, i)}
-                    </Board>
+                    </PhotoBoard>
                 </div>
             );
         }
@@ -67,16 +66,19 @@ export default class extends Component {
             this.setState({
                 folderPosition : [0,0]
             })
-            return this.props.createSticker(this.state.targetId)
+            return this.props.createPhoto(this.state.targetId)
         }
         else if(i !== this.props.count-1)
-            return <Folder id={i} img_src={this.state.stickerSrc} targetId={this.state.targetId} 
+            return <Photo id={this.props.photoList[i]} img_src={this.props.photoList[i]} targetId={this.state.targetId} 
                 setTargetId={(targetId)=>{this.setState({targetId : targetId})}}/>;        
     }
 
     render() {
         //this.props.stickerList API NEED
         const squares = [];
+        if(this.props.count === 1)
+            return(<div></div>)
+
         for (let i = 0; i < this.props.count; i++) {
             squares.push(this.renderSquare(i));
         }

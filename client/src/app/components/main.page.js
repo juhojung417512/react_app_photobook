@@ -9,15 +9,20 @@ import {
 } from 'react-redux';
 
 import history from '../common/history'
-import Tools from './tools.comp'
+import Photozone from './photozone.comp'
+import Templatezone from './templatezone.comp'
 import Template from './template.comp'
 import Sticker from './sticker.comp'
+import Divider from './divider.comp'
 
 import {
     GetLoginData,
     CreatePhotobook,
     CreateSticker,
-    GetStickers
+    GetStickers,
+    UndoHistory,
+    RedoHistory,
+    CreateTextBox,
 } from "../common/actions"
 
 let mapStateToProps = (state) => {
@@ -33,7 +38,10 @@ let mapDispatchToProps = (dispatch) => {
         GetLoginData: () => dispatch(GetLoginData()),
         CreatePhotobook : ()=> dispatch(CreatePhotobook()),
         CreateSticker : (idx)=> dispatch(CreateSticker(idx)),
-        GetStickers : ()=> dispatch(GetStickers())
+        GetStickers : ()=> dispatch(GetStickers()),
+        UndoHistory : ()=>dispatch(UndoHistory()),
+        RedoHistory : ()=>dispatch(RedoHistory()),
+        CreateTextBox : ()=>dispatch(CreateTextBox()),
     }
 }
 
@@ -47,8 +55,10 @@ export default class extends Component {
             dropdownMenuStyle : {display:"none"},
             popupStyle : {display:"none"},
             photoList : [],
+            addPhotoList : [],
             templateId : null,
-            sticker_count : 6
+            sticker_count : 6,
+            dividerState : 'Template'
         };
         this.dropdownList = [
             {type: "delete", title : "포토북 삭제"},
@@ -61,6 +71,10 @@ export default class extends Component {
     componentDidMount() {
         if (!window.getCookie('isLogin'))
             history.replace('/')
+    }
+
+    componentWillReceiveProps(nProps){
+        // photo history active need
     }
 
     showMenu = (event)=> {
@@ -80,7 +94,6 @@ export default class extends Component {
 
     onClickDropdownItem = (type)=>{
         //popup display on
-        console.log(type)
         switch(type){
             case "send" :
                 this.props.CreatePhotobook()
@@ -93,13 +106,30 @@ export default class extends Component {
         }
     }
 
+    onClickUndo = ()=>{
+        this.props.UndoHistory()
+    }
+
+    onClickRedo = ()=>{
+        this.props.RedoHistory()
+    }
+
+    onClickTextBox = ()=>{
+        this.props.CreateTextBox()
+    }
+
     render() {
         return ( <div className="main-page transition-item">
             <div className="top-bar">
-                <div className="menu-title">포토북</div>
-                <div className="menu-txt">새포토북</div>
-                <div className="menu-txt">불러오기</div>
-                <div className="menu-dropdown" onClick={this.showMenu}>
+                <div className="menu-txt right-border click"><img alt="top_img" src={require('../resources/top_newphotobook.png')}/>새 포토북</div>
+                <div className="menu-txt right-border click"><img alt="top_img" src={require('../resources/top_save.png')}/>저장</div>
+                <div className="menu-txt right-border click"><img alt="top_img" src={require('../resources/top_load.png')}/>불러오기</div>
+                <div className="menu-txt right-border click" onClick={this.onClickUndo}><img alt="top_img" src={require('../resources/top_undo.png')}/>실행취소</div>
+                <div className="menu-txt right-border click" onClick={this.onClickRedo}><img alt="top_img" src={require('../resources/top_redo.png')}/>다시실행</div>
+                <div className="menu-txt right-border click" onClick={this.onClickTextBox}><img alt="top_img" src={require('../resources/top_text.png')}/>글상자</div>
+                <div className="menu-txt right-border click"><img alt="top_img" src={require('../resources/top_layer.png')}/>사진정렬</div>
+                <div className="menu-txt right-border click"><img alt="top_img" src={require('../resources/top_sort.png')}/>순서</div>
+                <div className="menu-dropdown right-border click" onClick={this.showMenu}>
                     포토북 관리
                     <div className="dropdown-list zindex-2" style={this.state.dropdownMenuStyle}>
                         {this.dropdownList.map((item,idx)=>{
@@ -107,21 +137,32 @@ export default class extends Component {
                         })}
                     </div>
                 </div>
+                <div className="menu-txt"></div>
+                <div className="menu-txt"></div>
+                <div className="menu-txt"></div>
+                <div className="menu-txt left-border click"><img alt="top_img" src={require('../resources/top_preview.png')}/>미리보기</div>
             </div>
 
             <div className="contents">
-                <Sticker count={this.state.sticker_count} createSticker={(idx)=>{this.props.CreateSticker(idx)}} stickerList={this.props.stickerList}/>
-                <div className="left">
-                    <Tools setPhoto={(photo)=>{this.setState({photoList : [...this.state.photoList, photo]})}} 
-                        setTemplate={(templateId)=>{this.setState({templateId:templateId})}}/>
+                <Divider 
+                    photo={<Photozone photoList={this.state.addPhotoList} setPhoto={(photo)=>{this.setState({photoList : [...this.state.photoList, photo]})}}
+                        addPhoto={(photo)=>{this.setState({addPhotoList : [...this.state.addPhotoList, photo]})}}/>} 
+                    sticker={<Sticker count={this.state.sticker_count} createSticker={(idx)=>{this.props.CreateSticker(idx)}} 
+                            stickerList={this.props.stickerList}/>}
+                    template={<Templatezone setTemplate={(templateId)=>{this.setState({templateId:templateId})}}/>}
+                    state={this.state.dividerState} setType={(type)=>{this.setState({dividerState: type})}}
+                />
+                <div className="template-page">
+                    <Template templateId={this.state.templateId} photoList={this.state.photoList} />
+                    <div className="paging">
+                            <div className="paging-button"><img alt="paging-button" src={require('../resources/bottom_left.png')}/></div>
+                            <div className="template-pages">
+                                adsadsdas
+                            </div>
+                            <div className="paging-button"><img alt="paging-button" src={require('../resources/bottom_right.png')}/></div>
+                    </div>
                 </div>
-                <Template templateId={this.state.templateId}>
-                    <div className="photo-square">
-                        {this.state.photoList.map((item)=>{
-                            return (<div className="photo" key={item}><img draggable={false} src={item} alt={item+"-desc"}/></div>)
-                        })}
-                    </div> 
-                </Template>
+                
             </div>
         </div>);
     }

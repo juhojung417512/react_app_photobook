@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import { DropTarget } from 'react-dnd';
 
 import Square from './square.comp';
-import f_system from '../common/FileSystem';
+import p_system from '../common/PhotoSystem';
 import { ItemTypes } from '../common/constants';
 
 const squareTarget = {
     drop(props) {
-        f_system.init().moveFolder(props.x, props.y)
+        p_system.init().moveFolder(props.x, props.y)
     }
 };
 
@@ -19,7 +19,7 @@ function collect(connect, monitor) {
     };
 }
 
-@DropTarget(ItemTypes.FOLDER, squareTarget, collect)
+@DropTarget(ItemTypes.PHOTO, squareTarget, collect)
 export default class Board extends Component {
     static propTypes = {
         x: PropTypes.number.isRequired,

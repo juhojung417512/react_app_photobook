@@ -14,15 +14,13 @@ export default class extends Component {
             dragable : true,
             isClick : false,
             colorBoxState : false,
-            prev_pos : null
+            prev_pos : null,
+            prev_size : null
         };
-        this.dragHandlers = {onStart: this.onDragStart, onDrag: this.onDrag, onStop: this.onDragStop};
+        this.dragHandlers = {onStart: this.onDragStart, onDrag: this.onDragging, onStop: this.onDragStop};
     }
 
     componentDidMount() {
-        if(this.props.prevText !== undefined && this.props.prevText !== null){
-
-        }
     }
 
     onDragStart = () =>{
@@ -31,6 +29,10 @@ export default class extends Component {
         this.setState({
             prev_pos : pos
         })
+    }
+
+    onDragging = ()=>{
+        console.log("asdasdas")
     }
 
     onDragStop = () =>{
@@ -81,6 +83,20 @@ export default class extends Component {
         })
     }
 
+    onResizeStart = (w,h)=>{
+        this.props.onResizeStart()
+        this.setState({
+            prev_size: {width: w, height: h}
+        })
+    }
+
+    onResizeStop = (w,h)=>{
+        this.props.onResizeStop(this.state.prev_size,{width: w, height: h})
+        this.setState({
+            prev_size: null
+        })
+    }
+
     render() {
         return (
             <Draggable bounds="body" handle=".handle" {...this.dragHandlers} position={this.props.dragForcePos}>
@@ -110,7 +126,10 @@ export default class extends Component {
                         defaultSize={{
                             width: this.props.defaultWidth ? this.props.defaultWidth : 200,
                             height: this.props.defaultHeight ? this.props.defaultHeight : 200,
-                        }}>
+                        }}
+                        onResizeStart={(e,direction,ref,d)=>{this.onResizeStart(ref.clientWidth,ref.clientHeight)}}
+                        onResizeStop={(e,direction,ref,d)=>{this.onResizeStop(ref.clientWidth,ref.clientHeight)}}
+                        size={this.props.resizeForceSize}>
                         {this.props.children}
                     </Resizable>
                 </div>

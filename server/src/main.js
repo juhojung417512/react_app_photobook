@@ -12,7 +12,7 @@ let port = 3000;
 app.use(bodyParser.json());
 
 // app.get("/*", function (req, res) {
-//     res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+//     res.sendFile(path.resolve('../client/build', 'index.html'));
 // })
 
 app.get("/photos/:filename", async (req,res) => {
