@@ -7,6 +7,10 @@ export const GET_TEMPLATE_INFO = "GET_TEMPLATE_INFO"
 export const RESET_TEMPLATE_INFO = "RESET_TEMPLATE_INFO"
 export const CREATE_PHOTOBOOK = "CREATE_PHOTOBOOK"
 export const UPLOAD_PHOTOBOOK = "UPLOAD_PHOTOBOOK"
+export const ACTIVE_SLOT = "ACTIVE_SLOT"
+export const DEACTIVE_SLOT = "DEACTIVE_SLOT"
+export const SORT_SLOT = "SORT_SLOT"
+export const ORDER_SLOT = "ORDER_SLOT"
 export const CREATE_PHOTO = "CREATE_PHOTO"
 export const DELETE_PHOTO = "DELETE_PHOTO"
 export const RESET_PHOTO_STATE = "RESET_PHOTO_STATE"
@@ -25,6 +29,7 @@ export const DRAG_TEXTBOX = "DRAG_TEXTBOX"
 export const RESIZE_TEXTBOX = "RESIZE_TEXTBOX"
 export const REDO_HISTORY = "REDO_HISTORY"
 export const UNDO_HISTORY = "UNDO_HISTORY"
+export const CREATE_HISTORY = "CREATE_HISTORY"
 
 export let GetTemplates = actions( GET_TEMPLATES, async()=>{
     return await Network.init().get('/templates')
@@ -46,8 +51,24 @@ export let CreatePhotobook = actions (CREATE_PHOTOBOOK, ()=>{
     return true
 })
 
+export let ActiveSlot = actions ( ACTIVE_SLOT, (type,idx)=>{
+    return {type : type , idx : idx}
+})
+
+export let DeactiveSlot = actions ( DEACTIVE_SLOT, (type,idx)=>{
+    return {type : type, idx : idx}
+})
+
+export let SortSlot = actions( SORT_SLOT,(type)=>{
+    return type
+})
+
+export let OrderSlot = actions( ORDER_SLOT,(type)=>{
+    return type
+})
+
 export let CreatePhoto = actions( CREATE_PHOTO, (src)=>{
-    return src
+    return {src : src}
 })
 
 export let DeletePhoto = actions( DELETE_PHOTO, (src, idx)=>{
@@ -71,7 +92,7 @@ export let GetStickers = actions( GET_STICKERS, async ()=>{
 })
 
 export let CreateSticker = actions (CREATE_STICKER, (id)=>{
-    return id
+    return {id : id}
 })
 
 export let DeleteSticker = actions (DELETE_STICKER, (id,idx)=>{
@@ -91,7 +112,7 @@ export let ResizeSticker = actions( RESIZE_STICKER, (idx,prev,next)=>{
 })
 
 export let CreateTextBox = actions(CREATE_TEXTBOX, ()=>{
-    return true
+    return {res : true}
 })
 
 export let DeleteTextBox = actions(DELETE_TEXTBOX, (txt,color,idx)=>{
@@ -110,10 +131,14 @@ export let ResizeTextBox = actions( RESIZE_TEXTBOX, (idx,prev,next)=>{
     return {idx : idx, prev: prev, next: next}
 })
 
-export let UndoHistory = actions( UNDO_HISTORY, async ()=>{
-    return await HistoryManager.init().UndoHistory()
+export let UndoHistory = actions( UNDO_HISTORY, ()=>{
+    return HistoryManager.init().UndoHistory()
 })
 
-export let RedoHistory = actions( REDO_HISTORY, async ()=>{
-    return await HistoryManager.init().RedoHistory()
+export let RedoHistory = actions( REDO_HISTORY, ()=>{
+    return HistoryManager.init().RedoHistory()
+})
+
+export let CreateHistory = actions (CREATE_HISTORY, (type,id,idx)=>{
+    return {type :type, id : id ,idx : idx}
 })

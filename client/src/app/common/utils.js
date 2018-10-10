@@ -38,7 +38,13 @@ export class HistoryManager{
         let isHis = Object.values(HISTORYS).findIndex((key)=>{
             return key === action.type
         })
-        
+        if(action.type === HISTORYS.C_H){
+            let temp = HistoryManager.history[HistoryManager.pivot-1]
+            temp[Object.keys(temp)[0]].idx = action.payload.idx
+            HistoryManager.history[HistoryManager.pivot-1] = temp
+            return
+        }
+
         if(isHis === -1)
             return
         if(HistoryManager.pivot === MaxHistorys)
@@ -46,13 +52,26 @@ export class HistoryManager{
             HistoryManager.history = [...HistoryManager.history.splice(0,1)]
             HistoryManager.pivot -= 1
         }
-        else {
-            HistoryManager.pivot += 1
-            HistoryManager.history = [...HistoryManager.history, {[action.type]:action.payload}]
-        }
+
+        HistoryManager.pivot += 1
+        HistoryManager.history = [...HistoryManager.history.splice(0,HistoryManager.pivot), {[action.type]:action.payload},...HistoryManager.history.splice(HistoryManager.pivot+1,HistoryManager.history.length)]
     }
 
-    async UndoHistory(){
+    CheckUndo(){
+        if(HistoryManager.pivot !== 0){
+            return true
+        }
+        return false
+    }
+
+    CheckRedo(){
+        if(HistoryManager.pivot < HistoryManager.history.length){
+            return true
+        }
+        return false
+    }
+
+    UndoHistory(){
         if(HistoryManager.pivot !== 0){
             HistoryManager.pivot -= 1
             return { undo : HistoryManager.history[HistoryManager.pivot], pivot : HistoryManager.pivot }
@@ -60,7 +79,7 @@ export class HistoryManager{
         return null
     }
 
-    async RedoHistory(){
+    RedoHistory(){
         if(HistoryManager.pivot < HistoryManager.history.length){
             HistoryManager.pivot += 1
             return { redo : HistoryManager.history[HistoryManager.pivot-1] , pivot : HistoryManager.pivot }

@@ -15,7 +15,7 @@ export default class extends Component {
             isClick : false,
             colorBoxState : false,
             prev_pos : null,
-            prev_size : null
+            prev_size : null,
         };
         this.dragHandlers = {onStart: this.onDragStart, onDrag: this.onDragging, onStop: this.onDragStop};
     }
@@ -32,7 +32,6 @@ export default class extends Component {
     }
 
     onDragging = ()=>{
-        console.log("asdasdas")
     }
 
     onDragStop = () =>{
@@ -44,13 +43,16 @@ export default class extends Component {
     }
 
     onClickSlot = () =>{
-        if(!this.state.isClick)
+        if(!this.state.isClick){
+            this.props.onClickActive()
             this.setState({
                 isClick : true
             })
+        }
     }
 
     offClickSlot = ()=>{
+        this.props.onClickDeactive()
         this.setState({
             isClick : false,
             colorBoxState : false
@@ -98,6 +100,7 @@ export default class extends Component {
     }
 
     render() {
+        console.log(this.props.dragForcePos)
         return (
             <Draggable bounds="body" handle=".handle" {...this.dragHandlers} position={this.props.dragForcePos}>
                 <div ref="DragContainer" className="slot zindex-1" onClick={this.onClickSlot}>

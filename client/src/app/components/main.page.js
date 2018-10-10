@@ -14,10 +14,14 @@ import Templatezone from './templatezone.comp'
 import Template from './template.comp'
 import Sticker from './sticker.comp'
 import Divider from './divider.comp'
+import { PHOTOBOOK_LIST ,SORT_LIST, ORDER_LIST} from '../common/constants'
+import {HistoryManager} from '../common/utils'
 
 import {
     GetLoginData,
     CreatePhotobook,
+    SortSlot,
+    OrderSlot,
     CreateSticker,
     GetStickers,
     UndoHistory,
@@ -29,7 +33,15 @@ let mapStateToProps = (state) => {
     return {
         user: state.user,
         isLogin: state.user.isLogin,
-        stickerList : state.photobook.stickerList
+        stickerList : state.photobook.stickerList,
+        selectedSlot : state.photobook.selectedSlot,
+        isCreate  :state.photobook.isCreate,
+        isPhoto : state.photobook.isPhoto,
+        isSticker : state.photobook.isSticker,
+        isTextBox : state.photobook.isTextBox,
+        redo : state.photobook.redo,
+        undo : state.photobook.undo,
+        pivot : state.photobook.pivot
     }
 }
 
@@ -37,6 +49,8 @@ let mapDispatchToProps = (dispatch) => {
     return {
         GetLoginData: () => dispatch(GetLoginData()),
         CreatePhotobook : ()=> dispatch(CreatePhotobook()),
+        SortSlot : (type) => dispatch(SortSlot(type)),
+        OrderSlot : (type) => dispatch(OrderSlot(type)),
         CreateSticker : (idx)=> dispatch(CreateSticker(idx)),
         GetStickers : ()=> dispatch(GetStickers()),
         UndoHistory : ()=>dispatch(UndoHistory()),
@@ -53,6 +67,8 @@ export default class extends Component {
         this.state = {
             showMenu : false,
             dropdownMenuStyle : {display:"none"},
+            dropdownSortStyle : {display:"none"},
+            dropdownOrderStyle : {display:"none"},
             popupStyle : {display:"none"},
             photoList : [],
             addPhotoList : [],
@@ -60,12 +76,6 @@ export default class extends Component {
             sticker_count : 6,
             dividerState : 'Template'
         };
-        this.dropdownList = [
-            {type: "delete", title : "포토북 삭제"},
-            {type: "rename", title : "이름 변경"},
-            {type: "move", title : "위치이동"},
-            {type: "send", title : "포토북 전송"},
-        ]
     }
 
     componentDidMount() {
@@ -74,21 +84,50 @@ export default class extends Component {
     }
 
     componentWillReceiveProps(nProps){
-        // photo history active need
     }
 
-    showMenu = (event)=> {
-        event.preventDefault();
+    showMenu = (e)=> {
+        e.preventDefault();
 
         this.setState({ showMenu: true, dropdownMenuStyle : {display:"block"}}, () => {
             document.addEventListener('click', this.closeMenu);
         });
     }
 
-    closeMenu = (event)=> {
+    closeMenu = (e)=> {
         if (this.state.showMenu)
             this.setState({ showMenu : false, dropdownMenuStyle : {display:"none"}}, () => {
                 document.removeEventListener('click', this.closeMenu);
+            });
+    }
+
+    showOrder = (e)=>{
+        e.preventDefault();
+
+        this.setState({ showOrder: true, dropdownOrderStyle : {display:"block"}}, () => {
+            document.addEventListener('click', this.closeOrder);
+        });
+    }
+
+    closeOrder = (e)=>{
+        if (this.state.showOrder)
+            this.setState({ showOrder : false, dropdownOrderStyle : {display:"none"}}, () => {
+                document.removeEventListener('click', this.closeOrder);
+            });
+    }
+
+    showSort = (e)=>{
+        e.preventDefault();
+
+        this.setState({ showSort: true, dropdownSortStyle : {display:"block"}}, () => {
+            document.addEventListener('click', this.closeSort);
+        });
+    }
+
+    closeSort = (e)=>{
+        if (this.state.showSort)
+            this.setState({ showSort : false, dropdownSortStyle : {display:"none"}}, () => {
+                document.removeEventListener('click', this.closeSort);
             });
     }
 
@@ -118,21 +157,58 @@ export default class extends Component {
         this.props.CreateTextBox()
     }
 
+    onClickSort = (type)=>{
+        this.props.SortSlot(type)
+    }
+
+    onClickOrder = (type)=>{
+        this.props.OrderSlot(type)
+    }
+
     render() {
+        let undoStyle = HistoryManager.init().CheckUndo() === true ? "menu-txt right-border click" : "menu-txt right-border"
+        let redoStyle = HistoryManager.init().CheckRedo() === true ? "menu-txt right-border click" : "menu-txt right-border"
+        let isSlotStyle = this.props.selectedSlot.length > 0 ? "menu-txt right-border click" : "menu-txt right-border"
         return ( <div className="main-page transition-item">
             <div className="top-bar">
-                <div className="menu-txt right-border click"><img alt="top_img" src={require('../resources/top_newphotobook.png')}/>새 포토북</div>
-                <div className="menu-txt right-border click"><img alt="top_img" src={require('../resources/top_save.png')}/>저장</div>
-                <div className="menu-txt right-border click"><img alt="top_img" src={require('../resources/top_load.png')}/>불러오기</div>
-                <div className="menu-txt right-border click" onClick={this.onClickUndo}><img alt="top_img" src={require('../resources/top_undo.png')}/>실행취소</div>
-                <div className="menu-txt right-border click" onClick={this.onClickRedo}><img alt="top_img" src={require('../resources/top_redo.png')}/>다시실행</div>
-                <div className="menu-txt right-border click" onClick={this.onClickTextBox}><img alt="top_img" src={require('../resources/top_text.png')}/>글상자</div>
-                <div className="menu-txt right-border click"><img alt="top_img" src={require('../resources/top_layer.png')}/>사진정렬</div>
-                <div className="menu-txt right-border click"><img alt="top_img" src={require('../resources/top_sort.png')}/>순서</div>
+                <div className="menu-txt right-border click">
+                    <img alt="top_img" src={require('../resources/top_newphotobook.png')}/>새 포토북
+                </div>
+                <div className="menu-txt right-border click">
+                    <img alt="top_img" src={require('../resources/top_save.png')}/>저장
+                </div>
+                <div className="menu-txt right-border click">
+                    <img alt="top_img" src={require('../resources/top_load.png')}/>불러오기
+                </div>
+                <div className={undoStyle} onClick={HistoryManager.init().CheckUndo() === true ? this.onClickUndo : null}>
+                    <img alt="top_img" src={require('../resources/top_undo.png')}/>실행취소
+                </div>
+                <div className={redoStyle} onClick={HistoryManager.init().CheckRedo() === true ? this.onClickRedo : null}>
+                    <img alt="top_img" src={require('../resources/top_redo.png')}/>다시실행
+                </div>
+                <div className="menu-txt right-border click" onClick={this.onClickTextBox}>
+                    <img alt="top_img" src={require('../resources/top_text.png')}/>글상자
+                </div>
+                <div className={isSlotStyle} onClick={this.props.selectedSlot.length > 0 ? this.showSort : null}>
+                    <img alt="top_img" src={require('../resources/top_layer.png')}/>사진정렬
+                    <div className="dropdown-list zindex-2" style={this.state.dropdownSortStyle}>
+                        {SORT_LIST.map((item,idx)=>{
+                            return(<div onClick={this.onClickSort.bind(this,item.type)} key={idx}>{item.title}</div>)
+                        })}
+                    </div>
+                </div>
+                <div className={isSlotStyle} onClick={this.props.selectedSlot.length > 0 ? this.showOrder : null}>
+                    <img alt="top_img" src={require('../resources/top_sort.png')}/>순서
+                    <div className="dropdown-list zindex-2" style={this.state.dropdownOrderStyle}>
+                        {ORDER_LIST.map((item,idx)=>{
+                            return(<div onClick={this.onClickOrder.bind(this,item.type)} key={idx}>{item.title}</div>)
+                        })}
+                    </div>
+                </div>
                 <div className="menu-dropdown right-border click" onClick={this.showMenu}>
                     포토북 관리
                     <div className="dropdown-list zindex-2" style={this.state.dropdownMenuStyle}>
-                        {this.dropdownList.map((item,idx)=>{
+                        {PHOTOBOOK_LIST.map((item,idx)=>{
                             return(<div onClick={this.onClickDropdownItem.bind(this,item.type)} key={idx}>{item.title}</div>)
                         })}
                     </div>

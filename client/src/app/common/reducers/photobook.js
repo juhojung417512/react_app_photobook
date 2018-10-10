@@ -4,6 +4,10 @@ import {
     RESET_TEMPLATE_INFO,
     CREATE_PHOTOBOOK,
     UPLOAD_PHOTOBOOK,
+    ACTIVE_SLOT,
+    DEACTIVE_SLOT,
+    SORT_SLOT,
+    ORDER_SLOT,
     CREATE_PHOTO,
     DELETE_PHOTO,
     RESET_PHOTO_STATE,
@@ -35,7 +39,11 @@ let initialState={
     isTextBox : false,
     undo : null,
     redo : null,
-    pivot : 0
+    pivot : 0,
+    selectedSlot : [],
+    selectedType : [],
+    sortStyle : null,
+    orderStyle : null
 }
 
 export default function photobook(state=initialState, action){
@@ -72,6 +80,34 @@ export default function photobook(state=initialState, action){
                 ...state,
                 isCreate : action.payload
             }
+        case ACTIVE_SLOT : 
+            return{
+                ...state,
+                selectedSlot : [...state.selectedSlot, action.payload.idx],
+                selectedType : [...state.selectedType, action.payload.type],
+                sortStyle : null,
+                orderStyle : null
+            }
+        case DEACTIVE_SLOT : 
+            state.selectedSlot.splice(state.selectedSlot.indexOf(action.payload.idx),1)
+            state.selectedType.splice(state.selectedType.indexOf(action.payload.type),1)
+            return {
+                ...state,
+                selectedSlot : [...state.selectedSlot],
+                selectedType : [...state.selectedType],
+                sortStyle : null,
+                orderStyle : null
+            }
+        case SORT_SLOT : 
+            return{
+                ...state,
+                sortStyle : action.payload
+            }
+        case ORDER_SLOT : 
+            return{
+                ...state,
+                orderStyle : action.payload
+            }
         case CREATE_PHOTO : 
             return {
                 ...state,
@@ -90,11 +126,13 @@ export default function photobook(state=initialState, action){
             }
         case DRAG_PHOTO : 
             return {
-                ...state
+                ...state,
+                sortStyle : null,
+                orderStyle : null
             }
         case RESIZE_PHOTO : 
             return {
-                ...state
+                ...state,
             }
         case GET_STICKERS : 
             return{
@@ -120,7 +158,9 @@ export default function photobook(state=initialState, action){
             }
         case DRAG_STICKER : 
             return {
-                ...state
+                ...state,
+                sortStyle : null,
+                orderStyle : null
             }
         case CREATE_TEXTBOX : 
             return { 
@@ -138,7 +178,9 @@ export default function photobook(state=initialState, action){
             }
         case DRAG_TEXTBOX : 
             return {
-                ...state
+                ...state,
+                sortStyle : null,
+                orderStyle : null
             }
         case UNDO_HISTORY :
             return {
