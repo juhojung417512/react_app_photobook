@@ -1,4 +1,5 @@
 import {
+    SET_TEMPLATE_IDX,
     GET_TEMPLATES,
     GET_TEMPLATE_INFO,
     RESET_TEMPLATE_INFO,
@@ -24,8 +25,16 @@ import {
     DRAG_TEXTBOX,
     UNDO_HISTORY,
     REDO_HISTORY,
+    CALL_PREVIEW,
+    RECEIVE_PREVIEW,
+    SET_PREVIEW
 } from '../actions'
 import {HistoryManager} from "../utils"
+import {ORDER_LIST_TYPE} from "../constants"
+
+let stateStore = {
+    // state store
+}
 
 let initialState={
     template : null,
@@ -43,12 +52,20 @@ let initialState={
     selectedSlot : [],
     selectedType : [],
     sortStyle : null,
-    orderStyle : null
+    orderStyle : null,
+    preivew : null,
+    isPreview : false
 }
 
 export default function photobook(state=initialState, action){
     HistoryManager.init().WriteHistory(action)
     switch (action.type) {
+        case SET_TEMPLATE_IDX : 
+            if(Object.keys(stateStore).length < action.payload + 1)
+                stateStore[action.payload] = initialState
+            return{
+                ...stateStore[action.payload]
+            }
         case GET_TEMPLATES:
             return {
                 ...state,
@@ -103,7 +120,7 @@ export default function photobook(state=initialState, action){
                 ...state,
                 sortStyle : action.payload
             }
-        case ORDER_SLOT : 
+        case ORDER_SLOT :
             return{
                 ...state,
                 orderStyle : action.payload
@@ -193,6 +210,21 @@ export default function photobook(state=initialState, action){
                 ...state,
                 redo : action.payload === null ? state.redo : action.payload.redo,
                 pivot : action.payload === null ? state.pivot : action.payload.pivot,
+            }
+        case CALL_PREVIEW : 
+            return{
+                ...state,
+                isPreview : true
+            }
+        case RECEIVE_PREVIEW :
+            return{
+                ...state,
+                isPreview : false
+            }
+        case SET_PREVIEW : 
+            return{
+                ...state,
+                preview : action.payload
             }
         default : 
             return state

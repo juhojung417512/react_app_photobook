@@ -25,7 +25,17 @@ export default class extends Component {
     constructor() {
         super();
         this.state = {
+            templateIndex : null
         };
+    }
+
+    componentWillReceiveProps(nProps){
+        if(nProps.templateIndex !== this.state.templateIndex){
+            this.props.GetTemplates()
+            this.setState({
+                templateIndex : nProps.templateIndex
+            })
+        }
     }
 
     componentDidMount() {
@@ -44,11 +54,24 @@ export default class extends Component {
         return (
             <div className="tools">
                 <div className="template-list">
-                    {this.props.templateList ? this.props.templateList.map((item,idx)=>{
-                        return(<div key={idx} className="template-icon">
-                                <img draggable={false} alt={`template ${idx}`} src={item.frame} onClick={this.onClickTemplate.bind(this,item.templateId)}/>
-                            </div>)
-                    }) : <div></div>}
+                    <div className="div-left">
+                        {this.props.templateList ? this.props.templateList.map((item,idx)=>{
+                            if(idx % 2 ===0)
+                                return
+                            return(<div key={idx} className="template-icon">
+                                    <img draggable={false} alt={`template ${idx}`} src={item.frame} onClick={this.onClickTemplate.bind(this,item.templateId)}/>
+                                </div>)
+                        }) : <div></div>}
+                    </div>
+                    <div className="div-right">
+                        {this.props.templateList ? this.props.templateList.map((item,idx)=>{
+                            if(idx % 2 !==0)
+                                return
+                            return(<div key={idx} className="template-icon">
+                                    <img draggable={false} alt={`template ${idx}`} src={item.frame} onClick={this.onClickTemplate.bind(this,item.templateId)}/>
+                                </div>)
+                        }) : <div></div>}
+                    </div>
                     <button onClick={this.onClickTemplateDelete}>템플릿 삭제</button>
                 </div>
             </div>

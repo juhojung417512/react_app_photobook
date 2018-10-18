@@ -38,7 +38,7 @@ export default class extends Component {
     }
 
     componentWillReceiveProps(nProps){
-        if(nProps.photoList !== this.props.photoList){
+        if(nProps.photoList !== this.state.photoList){
             this.setState({
                 photoList : nProps.photoList
             })

@@ -99,11 +99,11 @@ export default class extends Component {
         })
     }
 
-    render() {
-        console.log(this.props.dragForcePos)
+    render() {  
         return (
             <Draggable bounds="body" handle=".handle" {...this.dragHandlers} position={this.props.dragForcePos}>
-                <div ref="DragContainer" className="slot zindex-1" onClick={this.onClickSlot}>
+                <div ref="DragContainer" className="slot" onClick={this.onClickSlot} 
+                    style={{zIndex: this.props.orderIndex === undefined || this.props.orderIndex === null ? 1 : this.props.orderIndex}}>
                     {this.state.isClick ? 
                         <div className="slot-box">
                             <div className="handle text-div">드래그</div>

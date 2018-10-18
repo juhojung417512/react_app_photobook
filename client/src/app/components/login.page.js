@@ -36,10 +36,13 @@ export default class extends Component {
         Network.init()
     }
 
-    onChange = (e) => {
-        if(e.keycode === 13){
+    onKeyPress = (e) =>{
+        if(e.key === 'Enter'){
             return this.onClickLogin()
         }
+    }
+
+    onChange = (e) => {
         this.setState({
             [e.target.name]: e.target.value
         })
@@ -63,10 +66,30 @@ export default class extends Component {
     render() {
         return (
             <div className="login main-page transition-item">
-                <div className="title">PHOTO BOOK</div>
-                <input onChange={this.onChange} name="id" placeholder="아이디를 입력해주세요."></input>
-                <input onChange={this.onChange} name="pw" type="password" placeholder="비밀번호를 입력해주세요." ></input>
-                <button onClick={this.onClickLogin}>로그인</button>
+                <img className="top-icon" alt="login top icon" src={require('../resources/login_top_icon.png')}/>
+                <div className="content">
+                    <div className="signin-txt">Sign In</div>
+                    <div className="login-txt">
+                        <div className="login-img">
+                            <img alt="id" src={require('../resources/login_user_icon.png')} />
+                        </div>
+                        <div className="login-input">
+                            <input onChange={this.onChange} name="id" placeholder="Username"></input>
+                        </div>
+                    </div>
+                    <div className="login-txt">
+                        <div className="login-img">
+                            <img alt="pw" src={require('../resources/login_lock_icon.png')} />
+                        </div>
+                        <div className="login-input">
+                            <input onKeyPress={this.onKeyPress} onChange={this.onChange} name="pw" type="password" placeholder="Password" ></input>
+                        </div>
+                    </div>
+                    <div className="login-button">
+                        <button onClick={this.onClickLogin}>Login</button>
+                    </div>
+                </div>
+                
             </div>
         );
     }

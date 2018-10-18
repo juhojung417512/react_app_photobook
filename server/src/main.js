@@ -15,9 +15,12 @@ app.use(bodyParser.json());
 //     res.sendFile(path.resolve('../client/build', 'index.html'));
 // })
 
-app.get("/photos/:filename", async (req,res) => {
+app.get("/resources/:filetype/:filename", async (req,res) => {
     let filename = req.params.filename
-    let filePath = path.join(__dirname,'../photos', filename);
+    let filetype = req.params.filetype
+    console.log(filename)
+    let filePath = path.join(__dirname,'../resources/'+filetype, filename);
+    console.log(filePath)
     let stat = fs.statSync(filePath);
     let fileEx = filename.split(".")
     fileEx = fileEx[fileEx.length-1]

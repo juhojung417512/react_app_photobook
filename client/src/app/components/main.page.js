@@ -1,6 +1,7 @@
 import React, {
     Component
 } from 'react';
+import ReactDOM from 'react-dom'
 import {
     hot
 } from 'react-hot-loader'
@@ -16,17 +17,21 @@ import Sticker from './sticker.comp'
 import Divider from './divider.comp'
 import { PHOTOBOOK_LIST ,SORT_LIST, ORDER_LIST} from '../common/constants'
 import {HistoryManager} from '../common/utils'
+import Preview from './preview.comp'
 
 import {
+    SetTemaplteIdx,
     GetLoginData,
     CreatePhotobook,
     SortSlot,
     OrderSlot,
+    
     CreateSticker,
     GetStickers,
     UndoHistory,
     RedoHistory,
     CreateTextBox,
+    CallPreview
 } from "../common/actions"
 
 let mapStateToProps = (state) => {
@@ -41,12 +46,14 @@ let mapStateToProps = (state) => {
         isTextBox : state.photobook.isTextBox,
         redo : state.photobook.redo,
         undo : state.photobook.undo,
-        pivot : state.photobook.pivot
+        pivot : state.photobook.pivot,
+        preview : state.photobook.preview
     }
 }
 
 let mapDispatchToProps = (dispatch) => {
     return {
+        SetTemaplteIdx : (idx) => dispatch(SetTemaplteIdx(idx)),
         GetLoginData: () => dispatch(GetLoginData()),
         CreatePhotobook : ()=> dispatch(CreatePhotobook()),
         SortSlot : (type) => dispatch(SortSlot(type)),
@@ -56,8 +63,19 @@ let mapDispatchToProps = (dispatch) => {
         UndoHistory : ()=>dispatch(UndoHistory()),
         RedoHistory : ()=>dispatch(RedoHistory()),
         CreateTextBox : ()=>dispatch(CreateTextBox()),
+        CallPreview : ()=>dispatch(CallPreview())
     }
 }
+/* 2018-10-17 wed photobook manage delete.
+<div className="menu-dropdown right-border click" onClick={this.showMenu}>
+    포토북 관리
+    <div className="dropdown-list zindex-2" style={this.state.dropdownMenuStyle}>
+        {PHOTOBOOK_LIST.map((item,idx)=>{
+            return(<div onClick={this.onClickDropdownItem.bind(this,item.type)} key={idx}>{item.title}</div>)
+        })}
+    </div>
+</div>
+*/
 
 @hot(module)
 @connect(mapStateToProps, mapDispatchToProps)
@@ -72,15 +90,25 @@ export default class extends Component {
             popupStyle : {display:"none"},
             photoList : [],
             addPhotoList : [],
-            templateId : null,
+            templateIds : [],
+            nowTemplateId : null,
             sticker_count : 6,
-            dividerState : 'Template'
+            dividerState : 'Template',
+            templateCanvasList : [],
+            templates : [],
+            templateIndex : 0,
+            isPreview : false,
         };
     }
 
     componentDidMount() {
         if (!window.getCookie('isLogin'))
             history.replace('/')
+        this.setState({
+            templates : [true,true],
+            templateId : [null,null]
+        })
+        this.props.SetTemaplteIdx(0)
     }
 
     componentWillReceiveProps(nProps){
@@ -165,7 +193,69 @@ export default class extends Component {
         this.props.OrderSlot(type)
     }
 
+    updatePreview = (preview,idx)=>{
+        // 어떻게 할지 고민중
+        if(this.state.templateCanvasList.length <= idx){
+            this.setState({templateCanvasList : [...this.state.templateCanvasList, preview]})    
+        }
+        else if(this.state.templateCanvasList[idx] !== preview){
+            this.state.templateCanvasList[idx] = preview
+            this.setState({templateCanvasList : this.state.templateCanvasList})
+        }
+    }
+
+    changeTemplate = (idx)=>{
+        this.props.SetTemaplteIdx(idx)
+        this.setState({
+            templateIndex : idx,
+            nowTemplateId : this.state.templateIds[idx],
+            dividerState  : null
+        })
+    }
+
+    onClickTemplateMove = (type) =>{
+        let idx = this.state.templateIndex
+        if(type === 'prev' && idx - 1 >= 0){
+            this.changeTemplate(idx - 1)
+        }
+        else if(type === 'next' && idx + 1 < this.state.templates.length){
+            this.changeTemplate(idx + 1)
+        }
+    }
+
+    setTemplateId = (id)=>{
+        this.state.templateIds[this.state.templateIndex] = id
+        this.setState({
+            templateId:this.state.templateIds,
+            nowTemplateId : id
+        })
+    }
+
+    newTemplate = ()=>{
+        this.setState({
+            templateIndex : this.state.templateIndex + 1,
+            nowTemplateId : null,
+            dividerState  : null
+        })
+    }
+
+    onClickPreview = ()=>{
+        this.props.CallPreview()
+        setTimeout(() => {
+            this.setState({
+                isPreview : true
+            })
+        }, 500);
+    }
+
+    onClickClosePreview = ()=>{
+        this.setState({
+            isPreview : false
+        })
+    }
+
     render() {
+        console.log(this.props.preview)
         let undoStyle = HistoryManager.init().CheckUndo() === true ? "menu-txt right-border click" : "menu-txt right-border"
         let redoStyle = HistoryManager.init().CheckRedo() === true ? "menu-txt right-border click" : "menu-txt right-border"
         let isSlotStyle = this.props.selectedSlot.length > 0 ? "menu-txt right-border click" : "menu-txt right-border"
@@ -205,35 +295,44 @@ export default class extends Component {
                         })}
                     </div>
                 </div>
-                <div className="menu-dropdown right-border click" onClick={this.showMenu}>
-                    포토북 관리
-                    <div className="dropdown-list zindex-2" style={this.state.dropdownMenuStyle}>
-                        {PHOTOBOOK_LIST.map((item,idx)=>{
-                            return(<div onClick={this.onClickDropdownItem.bind(this,item.type)} key={idx}>{item.title}</div>)
-                        })}
-                    </div>
+                <div className="menu-txt"></div>
+                <div className="menu-txt"></div>
+                <div className="menu-txt"></div>
+                <div className="menu-txt left-border click" onClick={this.onClickPreview}>
+                    <img alt="top_img" src={require('../resources/top_preview.png')}/>미리보기
                 </div>
-                <div className="menu-txt"></div>
-                <div className="menu-txt"></div>
-                <div className="menu-txt"></div>
-                <div className="menu-txt left-border click"><img alt="top_img" src={require('../resources/top_preview.png')}/>미리보기</div>
             </div>
 
             <div className="contents">
+                {this.state.isPreview ? <Preview onExit={this.onClickClosePreview} preview={this.props.preview}/> : <div></div>}
                 <Divider 
-                    photo={<Photozone photoList={this.state.addPhotoList} setPhoto={(photo)=>{this.setState({photoList : [...this.state.photoList, photo]})}}
-                        addPhoto={(photo)=>{this.setState({addPhotoList : [...this.state.addPhotoList, photo]})}}/>} 
-                    sticker={<Sticker count={this.state.sticker_count} createSticker={(idx)=>{this.props.CreateSticker(idx)}} 
-                            stickerList={this.props.stickerList}/>}
-                    template={<Templatezone setTemplate={(templateId)=>{this.setState({templateId:templateId})}}/>}
+                    templateIndex = {this.state.templateIndex}
                     state={this.state.dividerState} setType={(type)=>{this.setState({dividerState: type})}}
-                />
+                >
+                {this.state.dividerState === 'Template' ? <Templatezone setTemplate={(templateId)=>{this.setTemplateId(templateId)}} templateIndex={this.state.templateIndex}/>
+                : this.state.dividerState === 'Photo' ? <Photozone photoList={this.state.addPhotoList} setPhoto={(photo)=>{this.setState({photoList : [...this.state.photoList, photo]})}}
+                addPhoto={(photo)=>{this.setState({addPhotoList : [...this.state.addPhotoList, photo]})}}/> 
+                : this.state.dividerState === 'Sticker' ? <Sticker count={this.state.sticker_count} createSticker={(idx)=>{this.props.CreateSticker(idx)}} 
+                stickerList={this.props.stickerList}/> 
+                : null }
+                </Divider>
                 <div className="template-page">
-                    <Template templateId={this.state.templateId} photoList={this.state.photoList} />
+                    <div className="template-frame" >
+                        <div className="frame-button" onClick={this.onClickTemplateMove.bind(this,'prev')}><img alt="frame-button" src={require('../resources/blue_left.png')}/></div>
+                        {this.state.templates.map((raw,idx)=>{
+                            if(idx !== this.state.templateIndex)
+                                return
+                            return(<Template templateIdx={idx} templateId={this.state.nowTemplateId} photoList={this.state.photoList} updatePreview={(canvas)=>{this.updatePreview(canvas,0)}}/>)
+                        })}
+                        <div className="frame-button" onClick={this.onClickTemplateMove.bind(this,'next')}><img alt="frame-button" src={require('../resources/blue_right.png')}/></div>
+                    </div>
                     <div className="paging">
                             <div className="paging-button"><img alt="paging-button" src={require('../resources/bottom_left.png')}/></div>
                             <div className="template-pages">
-                                adsadsdas
+                                {this.state.templateCanvasList.map((raw,idx)=>{
+                                    console.log(raw)
+                                    // 여기에 현재 작업 환경 미리보는 창이 들어갈 예정
+                                })}
                             </div>
                             <div className="paging-button"><img alt="paging-button" src={require('../resources/bottom_right.png')}/></div>
                     </div>

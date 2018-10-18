@@ -32,9 +32,12 @@ app.use(_bodyParser2.default.json());
 //     res.sendFile(path.resolve('../client/build', 'index.html'));
 // })
 
-app.get("/photos/:filename", async function (req, res) {
+app.get("/resources/:filetype/:filename", async function (req, res) {
     var filename = req.params.filename;
-    var filePath = _path2.default.join(__dirname, '../photos', filename);
+    var filetype = req.params.filetype;
+    console.log(filename);
+    var filePath = _path2.default.join(__dirname, '../resources/' + filetype, filename);
+    console.log(filePath);
     var stat = _fs2.default.statSync(filePath);
     var fileEx = filename.split(".");
     fileEx = fileEx[fileEx.length - 1];

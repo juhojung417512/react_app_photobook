@@ -30,6 +30,14 @@ export const RESIZE_TEXTBOX = "RESIZE_TEXTBOX"
 export const REDO_HISTORY = "REDO_HISTORY"
 export const UNDO_HISTORY = "UNDO_HISTORY"
 export const CREATE_HISTORY = "CREATE_HISTORY"
+export const SET_TEMPLATE_IDX = "SET_TEMPLATE_IDX"
+export const CALL_PREVIEW = "CALL_PREVIEW"
+export const RECEIVE_PREVIEW = "RECEIVE_PREVIEW"
+export const SET_PREVIEW = "SET_PREVIEW"
+
+export let SetTemaplteIdx = actions( SET_TEMPLATE_IDX, (idx)=>{
+    return idx
+})
 
 export let GetTemplates = actions( GET_TEMPLATES, async()=>{
     return await Network.init().get('/templates')
@@ -141,4 +149,16 @@ export let RedoHistory = actions( REDO_HISTORY, ()=>{
 
 export let CreateHistory = actions (CREATE_HISTORY, (type,id,idx)=>{
     return {type :type, id : id ,idx : idx}
+})
+
+export let CallPreview = actions( CALL_PREVIEW, ()=>{
+    return true
+})
+
+export let ReceivePreview = actions( RECEIVE_PREVIEW, ()=>{
+    return true
+})
+
+export let SetPreview = actions( SET_PREVIEW, (preview)=>{
+    return preview
 })

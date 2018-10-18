@@ -10,7 +10,6 @@ export default class extends Component {
     constructor() {
         super();
         this.state = {
-            nowContent : null,
             nowType : null,
             activeStyle : {borderBottom: '10px solid #5ACCF3'},
             deactiveStyle : {borderBottom: '10px solid #EFF1F7'},
@@ -21,7 +20,6 @@ export default class extends Component {
     componentDidMount(){
         this.setState({
             photoList : this.props.photoList,
-            nowContent : this.props.template,
             nowType: 'Template'
         })
     }
@@ -31,25 +29,21 @@ export default class extends Component {
             switch(this.props.state){
                 case 'Photo':
                     this.setState({
-                        nowContent : this.props.photo,
                         nowType: 'Photo'
                     })
                     break
                 case 'Template':
                     this.setState({
-                        nowContent : this.props.template,
                         nowType: 'Template'
                     })
                     break
                 case 'Sticker':
                     this.setState({
-                        nowContent : this.props.sticker,
                         nowType: 'Sticker'
                     })
                     break
                 default:
                     this.setState({
-                        nowContent : this.props.template,
                         nowType: 'Template'
                     })
                     break
@@ -58,13 +52,12 @@ export default class extends Component {
     }
 
     componentWillReceiveProps(nProps){
-        if(this.state.photoList !== nProps.photo.props.photoList){
-            this.setState({
-                nowType: 'Photo',
-                nowContent : nProps.photo,
-                photoList : nProps.photo.props.photoList
-            })
-        }
+        // if(this.state.photoList !== nProps.photo.props.photoList){
+        //     this.setState({
+        //         nowType: 'Photo',
+        //         photoList : nProps.photo.props.photoList
+        //     })
+        // }
     }
 
     onClickTopItem = (type) =>{
@@ -83,7 +76,7 @@ export default class extends Component {
                         onClick={this.onClickTopItem.bind(this,'Sticker')}><img alt="divider_img" src={require('../resources/icon_sticker.png')}/>스티커</div>
                 </div>
                 <div className="content">
-                    {this.state.nowContent}
+                    {this.props.children}
                 </div>
             </div>
             
