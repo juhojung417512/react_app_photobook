@@ -35,9 +35,23 @@ app.use(_bodyParser2.default.json());
 app.get("/resources/:filetype/:filename", async function (req, res) {
     var filename = req.params.filename;
     var filetype = req.params.filetype;
-    console.log(filename);
+
     var filePath = _path2.default.join(__dirname, '../resources/' + filetype, filename);
-    console.log(filePath);
+    var stat = _fs2.default.statSync(filePath);
+    var fileEx = filename.split(".");
+    fileEx = fileEx[fileEx.length - 1];
+    res.writeHead(200, {
+        'Content-Type': fileEx,
+        'Content-Length': stat.size
+    });
+    var readStream = _fs2.default.createReadStream(filePath);
+    readStream.pipe(res);
+});
+
+app.get("/resources/:filename", async function (req, res) {
+    var filename = req.params.filename;
+
+    var filePath = _path2.default.join(__dirname, '../resources/', filename);
     var stat = _fs2.default.statSync(filePath);
     var fileEx = filename.split(".");
     fileEx = fileEx[fileEx.length - 1];

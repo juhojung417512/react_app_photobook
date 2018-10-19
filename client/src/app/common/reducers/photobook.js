@@ -9,6 +9,7 @@ import {
     DEACTIVE_SLOT,
     SORT_SLOT,
     ORDER_SLOT,
+    GET_PHOTOS,
     CREATE_PHOTO,
     DELETE_PHOTO,
     RESET_PHOTO_STATE,
@@ -40,6 +41,7 @@ let initialState={
     template : null,
     templateList : null,
     isCreate : false,
+    photoList : [],
     photoSrc : null,
     stickerList : null,
     stickerId : null,
@@ -124,6 +126,11 @@ export default function photobook(state=initialState, action){
             return{
                 ...state,
                 orderStyle : action.payload
+            }
+        case GET_PHOTOS : 
+            return {
+                ...state,
+                photoList : action.payload.photoList
             }
         case CREATE_PHOTO : 
             return {

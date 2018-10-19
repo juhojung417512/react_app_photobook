@@ -25,7 +25,7 @@ import {
     CreatePhotobook,
     SortSlot,
     OrderSlot,
-    
+    GetPhotos,
     CreateSticker,
     GetStickers,
     UndoHistory,
@@ -47,7 +47,8 @@ let mapStateToProps = (state) => {
         redo : state.photobook.redo,
         undo : state.photobook.undo,
         pivot : state.photobook.pivot,
-        preview : state.photobook.preview
+        preview : state.photobook.preview,
+        photoList : state.photobook.photoList
     }
 }
 
@@ -58,6 +59,7 @@ let mapDispatchToProps = (dispatch) => {
         CreatePhotobook : ()=> dispatch(CreatePhotobook()),
         SortSlot : (type) => dispatch(SortSlot(type)),
         OrderSlot : (type) => dispatch(OrderSlot(type)),
+        GetPhotos : ()=>dispatch(GetPhotos()),
         CreateSticker : (idx)=> dispatch(CreateSticker(idx)),
         GetStickers : ()=> dispatch(GetStickers()),
         UndoHistory : ()=>dispatch(UndoHistory()),
@@ -109,9 +111,20 @@ export default class extends Component {
             templateId : [null,null]
         })
         this.props.SetTemaplteIdx(0)
+        this.props.GetStickers() // sticker api need
+        this.props.GetPhotos()
     }
 
     componentWillReceiveProps(nProps){
+        if(this.props.photoList !== nProps.photoList || this.state.addPhotoList.length < nProps.photoList.length){
+            let list = []
+            for(var i = 0; i < nProps.photoList.length; i++){
+                list.push(nProps.photoList[i].src)
+            }
+            this.setState({
+                addPhotoList : [...list, ...this.state.addPhotoList]
+            })
+        }
     }
 
     showMenu = (e)=> {
@@ -255,7 +268,6 @@ export default class extends Component {
     }
 
     render() {
-        console.log(this.props.preview)
         let undoStyle = HistoryManager.init().CheckUndo() === true ? "menu-txt right-border click" : "menu-txt right-border"
         let redoStyle = HistoryManager.init().CheckRedo() === true ? "menu-txt right-border click" : "menu-txt right-border"
         let isSlotStyle = this.props.selectedSlot.length > 0 ? "menu-txt right-border click" : "menu-txt right-border"

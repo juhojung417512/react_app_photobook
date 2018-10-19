@@ -17,7 +17,6 @@ export default class extends Component {
         this.state={
             folderPosition : [0,0],
             targetId : null,
-            stickerSrc : "/photos/sticker1.png"
         };
     }
 
@@ -70,20 +69,28 @@ export default class extends Component {
             return this.props.createSticker(this.state.targetId)
         }
         else if(i !== this.props.count-1)
-            return <Folder id={i} img_src={this.state.stickerSrc} targetId={this.state.targetId} 
+            return <Folder id={this.props.stickerList[i].id} img_src={this.props.stickerList[i].src} targetId={this.state.targetId} 
                 setTargetId={(targetId)=>{this.setState({targetId : targetId})}}/>;        
     }
 
     render() {
-        //this.props.stickerList API NEED
-        const squares = [];
+        const squares1 = [];
+        const squares2 = [];
         for (let i = 0; i < this.props.count; i++) {
-            squares.push(this.renderSquare(i));
+            if(i % 2 === 0)
+                squares1.push(this.renderSquare(i));
+            else
+                squares2.push(this.renderSquare(i));
         }
 
         return (
             <div className="filedir">
-                {squares}
+                <div className="div-divider">
+                    {squares1}
+                </div>
+                <div className="div-divider">
+                    {squares2}
+                </div>
             </div>
         );
     }

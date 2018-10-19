@@ -11,6 +11,7 @@ export const ACTIVE_SLOT = "ACTIVE_SLOT"
 export const DEACTIVE_SLOT = "DEACTIVE_SLOT"
 export const SORT_SLOT = "SORT_SLOT"
 export const ORDER_SLOT = "ORDER_SLOT"
+export const GET_PHOTOS = "GET_PHOTOS"
 export const CREATE_PHOTO = "CREATE_PHOTO"
 export const DELETE_PHOTO = "DELETE_PHOTO"
 export const RESET_PHOTO_STATE = "RESET_PHOTO_STATE"
@@ -73,6 +74,10 @@ export let SortSlot = actions( SORT_SLOT,(type)=>{
 
 export let OrderSlot = actions( ORDER_SLOT,(type)=>{
     return type
+})
+
+export let GetPhotos = actions( GET_PHOTOS, async ()=>{
+    return await Network.init().get('/photos')
 })
 
 export let CreatePhoto = actions( CREATE_PHOTO, (src)=>{

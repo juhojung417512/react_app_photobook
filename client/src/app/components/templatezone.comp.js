@@ -54,7 +54,7 @@ export default class extends Component {
         return (
             <div className="tools">
                 <div className="template-list">
-                    <div className="div-left">
+                    <div className="div-divider">
                         {this.props.templateList ? this.props.templateList.map((item,idx)=>{
                             if(idx % 2 ===0)
                                 return
@@ -63,7 +63,7 @@ export default class extends Component {
                                 </div>)
                         }) : <div></div>}
                     </div>
-                    <div className="div-right">
+                    <div className="div-divider">
                         {this.props.templateList ? this.props.templateList.map((item,idx)=>{
                             if(idx % 2 !==0)
                                 return
@@ -72,7 +72,6 @@ export default class extends Component {
                                 </div>)
                         }) : <div></div>}
                     </div>
-                    <button onClick={this.onClickTemplateDelete}>템플릿 삭제</button>
                 </div>
             </div>
         );

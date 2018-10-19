@@ -33,6 +33,7 @@ import {
 let mapStateToProps = (state)=>{
     return {
         templateList : state.photobook.templateList,
+        stickerList : state.photobook.stickerList,
         template : state.photobook.template,
         isCreate  :state.photobook.isCreate,
         isPhoto : state.photobook.isPhoto,
@@ -426,9 +427,10 @@ export default class extends Component {
     CreateSticker = (id,idx) =>{
         if(id !== undefined && id !== null){
             // id -> sticker api need
+            id = id.id
             if(idx === null){
                 this.setState({
-                    stickers : [...this.state.stickers, {id : id, src:"/photos/sticker1.png",display:true}],
+                    stickers : [...this.state.stickers, {id : id, src:this.props.stickerList[id-1].src,display:true}],
                     stickersDragPos : [...this.state.stickersDragPos, null],
                     stickersResize : [...this.state.stickersResize, null],
                     stickersOrder : [...this.state.stickersOrder,1]

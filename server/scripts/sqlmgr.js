@@ -16,6 +16,20 @@ class SQLMgr {
         `, [id, pw])
     }
 
+    async getPhotos(){
+        return await this.mysql.query(`
+            SELECT *
+            FROM photo
+        `)
+    }
+
+    async getStickers(){
+        return await this.mysql.query(`
+            SELECT * 
+            FROM sticker
+        `)
+    }
+
     async getTemplates(){
         return await this.mysql.query(`
             SELECT *

@@ -11,13 +11,13 @@ const upload = storage.single('file');
 let filename
 router.post("/upload/file",upload,(req,res)=>{
     let img_id = Math.floor(Math.random() * 10000).toString() + req.file.originalname ;
-    fs.rename(req.file.path, 'photos/'+ img_id ,(err)=>{
+    fs.rename(req.file.path, 'resources/'+ img_id ,(err)=>{
         if(err){
             console.log(err)
             filename = null
         }
     })
-    filename = 'photos/'+ img_id
+    filename = 'resources/'+ img_id
     return res.json({filename: filename})
 })
 

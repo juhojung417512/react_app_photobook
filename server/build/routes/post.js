@@ -33,13 +33,13 @@ var upload = storage.single('file');
 var filename = void 0;
 router.post("/upload/file", upload, function (req, res) {
     var img_id = Math.floor(Math.random() * 10000).toString() + req.file.originalname;
-    _fs2.default.rename(req.file.path, 'photos/' + img_id, function (err) {
+    _fs2.default.rename(req.file.path, 'resources/' + img_id, function (err) {
         if (err) {
             console.log(err);
             filename = null;
         }
     });
-    filename = 'photos/' + img_id;
+    filename = 'resources/' + img_id;
     return res.json({ filename: filename });
 });
 

@@ -37,8 +37,10 @@ export default class extends Component {
     };
 
     renderSquare(i) {
-        const x = i % 8;
-        const y = Math.floor(i / 8);
+        let x = i % 8;
+        let y = Math.floor(i / 8);
+        x += 1
+        y += 1
         if(this.props.count-1 === i)
         {
             return (
@@ -62,6 +64,7 @@ export default class extends Component {
 
     renderPiece(x, y, i) {
         const [folderX, folderY] = this.state.folderPosition;
+        console.log(x,y,i,this.props.count,folderX,folderY)
         if(i === this.props.count-1 && x === folderX && y === folderY){
             this.setState({
                 folderPosition : [0,0]
@@ -74,18 +77,23 @@ export default class extends Component {
     }
 
     render() {
-        //this.props.stickerList API NEED
-        const squares = [];
-        if(this.props.count === 1)
-            return(<div></div>)
-
+        const squares1 = [];
+        const squares2 = [];
         for (let i = 0; i < this.props.count; i++) {
-            squares.push(this.renderSquare(i));
+            if(i % 2 === 0)
+                squares1.push(this.renderSquare(i));
+            else
+                squares2.push(this.renderSquare(i));
         }
 
         return (
             <div className="filedir">
-                {squares}
+                <div className="div-divider">
+                    {squares1}
+                </div>
+                <div className="div-divider">
+                    {squares2}
+                </div>
             </div>
         );
     }

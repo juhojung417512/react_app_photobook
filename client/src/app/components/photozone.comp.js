@@ -5,18 +5,17 @@ import Photodnd from './photodnd.comp'
 import Network from '../common/Network'
 
 import { 
-    CreatePhoto
+    CreatePhoto,
 } from "../common/actions"
 
 let mapStateToProps = (state)=>{
     return {
-
 	}
 }
 
 let mapDispatchToProps = (dispatch) => {
     return {
-        CreatePhoto : (src)=>dispatch(CreatePhoto(src))
+        CreatePhoto : (src)=>dispatch(CreatePhoto(src)),
     }
 }
 @hot(module)
@@ -66,12 +65,12 @@ export default class extends Component {
         else
             alert("사진 불러오기 실패! (관리자에게 문의해주세요)")
     }
-
+    //this.state.photoList.length 요부분봐야함
     render() {
         return (
             <div className="tools">
-                <div className="photo-zone">
-                    <Photodnd count={this.state.photoList.length+1} createPhoto={(src)=>{this.props.CreatePhoto(src)}} // this.props.createphoto 
+                <div className="photo-zone"> 
+                    <Photodnd count={this.state.photoList.length +1} createPhoto={(src)=>{this.props.CreatePhoto(src)}} // this.props.createphoto 
                         photoList={this.state.photoList}/>
                 </div>
                 <div className="photo-upload">
