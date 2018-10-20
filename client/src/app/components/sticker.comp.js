@@ -37,12 +37,13 @@ export default class extends Component {
     };
 
     renderSquare(i) {
-        const x = i % 8;
-        const y = Math.floor(i / 8);
+        const x = i % this.props.count;
+        const y = Math.floor(i / this.props.count);
+        console.log(this.props.count, i)
         if(this.props.count-1 === i)
         {
             return (
-                <div key={i} className={"folder-background"} style={{position:"absolute",right:132,bottom:173,width:"57%",height:"62%", zIndex:1}}>
+                <div key={i} className={"folder-background"} style={{position:"absolute",right:120,bottom:163,width:"59%",height:"62%", zIndex:1}}>
                     <Board x={x} y={y} isTemplate={true}>
                         {this.renderPiece(x, y, i)}
                     </Board>

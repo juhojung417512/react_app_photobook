@@ -94,7 +94,7 @@ export default class extends Component {
             addPhotoList : [],
             templateIds : [],
             nowTemplateId : null,
-            sticker_count : 6,
+            sticker_count : null,
             dividerState : 'Template',
             templateCanvasList : [],
             templates : [],
@@ -123,6 +123,10 @@ export default class extends Component {
             }
             this.setState({
                 addPhotoList : [...list, ...this.state.addPhotoList]
+            })
+        } else if(this.state.sticker_count !== nProps.stickerList.length + 1){
+            this.setState({
+                sticker_count : nProps.stickerList.length + 1
             })
         }
     }
@@ -258,7 +262,7 @@ export default class extends Component {
             this.setState({
                 isPreview : true
             })
-        }, 500);
+        }, 1500);
     }
 
     onClickClosePreview = ()=>{

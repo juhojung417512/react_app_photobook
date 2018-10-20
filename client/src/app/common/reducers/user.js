@@ -13,7 +13,6 @@ export default function user(state=initialState, action){
                 alert("아이디 혹은 패스워드가 올바르지 않습니다.")
             else{
                 window.setCookie('isLogin',true)
-                alert("확인 완료")
             }
 
             return {

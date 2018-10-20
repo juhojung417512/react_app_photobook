@@ -44,7 +44,7 @@ export default class extends Component {
         if(this.props.count-1 === i)
         {
             return (
-                <div key={i} className={"folder-background"} style={{position:"absolute",right:132,bottom:173,width:"57%",height:"62%", zIndex:1}}>
+                <div key={i} className={"folder-background"} style={{position:"absolute",right:120,bottom:163,width:"59%",height:"62%", zIndex:1}}>
                     <PhotoBoard x={x} y={y} isTemplate={true}>
                         {this.renderPiece(x, y, i)}
                     </PhotoBoard>
@@ -64,7 +64,6 @@ export default class extends Component {
 
     renderPiece(x, y, i) {
         const [folderX, folderY] = this.state.folderPosition;
-        console.log(x,y,i,this.props.count,folderX,folderY)
         if(i === this.props.count-1 && x === folderX && y === folderY){
             this.setState({
                 folderPosition : [0,0]

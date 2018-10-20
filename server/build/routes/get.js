@@ -31,6 +31,7 @@ router.get('/photos', async function (req, res) {
 
 router.get('/stickers', async function (req, res) {
     var sticker_list = await _sqlmgr2.default.getStickers();
+    console.log(sticker_list);
     return res.json({
         stickerList: sticker_list.length === 0 ? null : sticker_list
     });

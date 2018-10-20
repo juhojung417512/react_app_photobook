@@ -56,7 +56,7 @@ export default class extends Component {
                 <div className="template-list">
                     <div className="div-divider">
                         {this.props.templateList ? this.props.templateList.map((item,idx)=>{
-                            if(idx % 2 ===0)
+                            if(idx % 2 !==0)
                                 return
                             return(<div key={idx} className="template-icon">
                                     <img draggable={false} alt={`template ${idx}`} src={item.frame} onClick={this.onClickTemplate.bind(this,item.templateId)}/>
@@ -65,7 +65,7 @@ export default class extends Component {
                     </div>
                     <div className="div-divider">
                         {this.props.templateList ? this.props.templateList.map((item,idx)=>{
-                            if(idx % 2 !==0)
+                            if(idx % 2 ===0)
                                 return
                             return(<div key={idx} className="template-icon">
                                     <img draggable={false} alt={`template ${idx}`} src={item.frame} onClick={this.onClickTemplate.bind(this,item.templateId)}/>

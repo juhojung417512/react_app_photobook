@@ -13,6 +13,7 @@ export default class extends Component {
         this.state = {
             dragable : true,
             isClick : false,
+            isCanvas : false,
             colorBoxState : false,
             prev_pos : null,
             prev_size : null,
@@ -21,6 +22,16 @@ export default class extends Component {
     }
 
     componentDidMount() {
+    }
+
+    componentWillReceiveProps(nProps){
+        if(this.state.isCanvas !== nProps.isCanvas){
+            if(nProps.isCanvas === true)
+                this.offClickSlot()
+            this.setState({
+                isCanvas : nProps.isCanvas
+            })
+        }
     }
 
     onDragStart = () =>{
@@ -98,6 +109,7 @@ export default class extends Component {
             prev_size: null
         })
     }
+    
 
     render() {  
         return (
@@ -106,7 +118,7 @@ export default class extends Component {
                     style={{zIndex: this.props.orderIndex === undefined || this.props.orderIndex === null ? 1 : this.props.orderIndex}}>
                     {this.state.isClick ? 
                         <div className="slot-box">
-                            <div className="handle text-div">드래그</div>
+                            <div className="handle text-div left-top"><i className="fas fa-arrows-alt"></i></div>
                             {this.props.isTextBox ? 
                                 <div className="text-toolbox">
                                     {this.state.colorBoxState ? 
@@ -117,14 +129,12 @@ export default class extends Component {
                                         : 
                                         <div className="color-opener text-div" onClick={this.onClickColorOpen}>글자 색상</div>}
                                 </div> : <div/>}
-                            <div className="exit-div text-div" onClick={this.offClickSlot}>닫기</div>
-                            <div className="text-div" onClick={this.onClickDeleteSlot}>삭제</div>
+                            <div className="exit-div text-div right-bottom" onClick={this.offClickSlot}><div><i className="fas fa-times" style={{fontSize:15}}></i></div></div>
+                            <div className="text-div right-bottom2" onClick={this.onClickDeleteSlot}><div><i className="fas fa-trash-alt" style={{fontSize:15}}></i></div></div>
                         </div> : <div/>}
                     <Resizable
                         style={{
                             display: 'flex',
-                            border: 'solid 1px #ddd',
-                            backgroundColor: '',
                         }}
                         defaultSize={{
                             width: this.props.defaultWidth ? this.props.defaultWidth : 200,

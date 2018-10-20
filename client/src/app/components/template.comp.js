@@ -153,9 +153,17 @@ export default class extends Component {
             if(nProps.isPreview)
                 this.CreatePreview()
             nProps.ReceivePreview()
-            this.setState({
-                isPreview : nProps.isPreview
-            })
+            if(this.state.isPreview)
+                setTimeout(() => {
+                    this.setState({
+                        isPreview : nProps.isPreview
+                    })
+                }, 1500);
+            else
+                this.setState({
+                    isPreview : nProps.isPreview
+                })
+            
         }
         else if(nProps.orderStyle !== this.state.orderStyle){
             let maxOrder = this.state.maxOrder
@@ -641,7 +649,6 @@ export default class extends Component {
     CreatePreview = async ()=>{
         if(this.refs.template !== undefined){
             let canvas = await html2canvas(this.refs.template, {useCORS: true})
-            console.log(canvas)
             this.props.SetPreview(canvas)
         } else { 
             alert("표시할 내용이 없습니다.")
@@ -649,6 +656,7 @@ export default class extends Component {
     }
 
     render() {
+        console.log(this.props.isPreview)
         if(this.props.template !== null)
             return (
                 <div className="frame" ref="template" style={{
@@ -667,9 +675,9 @@ export default class extends Component {
                                 onResizeStop={(prev,next)=>{this.onResizeStop(HISTORYS.R_P,idx,prev,next)}}
                                 onClickActive={()=>{this.props.ActiveSlot('Photo',idx)}} onClickDeactive={()=>{this.props.DeactiveSlot('Photo',idx)}}
                                 isSort={this.state.frameStyle !== null && this.props.selectedSlot.indexOf(idx) !== -1 && this.props.selectedType.indexOf('Photo') !== -1}
-                                orderIndex={this.state.photosOrder[idx]}>
+                                orderIndex={this.state.photosOrder[idx]} isCanvas={this.props.isCreate || this.state.isPreview ? true : false}>
 
-                                <img style={this.props.isCreate ? {} : {border: "1px dashed black"}} 
+                                <img style={this.props.isCreate || this.state.isPreview ? {} : {border: "1px dashed black"}} 
                                     draggable={false} alt="photo_img" src={item.src}/>
                             </Slot>)
                     })}
@@ -684,9 +692,9 @@ export default class extends Component {
                                 onResizeStop={(prev,next)=>{this.onResizeStop(HISTORYS.R_S,idx,prev,next)}}
                                 onClickActive={()=>{this.props.ActiveSlot('Sticker',idx)}} onClickDeactive={()=>{this.props.DeactiveSlot('Sticker', idx)}}
                                 isSort={this.state.frameStyle !== null && this.props.selectedSlot.indexOf(idx) !== -1 && this.props.selectedType.indexOf('Sticker') !== -1}
-                                orderIndex={this.state.stickersOrder[idx]}>
+                                orderIndex={this.state.stickersOrder[idx]} isCanvas={this.props.isCreate || this.state.isPreview ? true : false}>
                                 
-                                <img style={this.props.isCreate ? {} : {border: "1px dashed black"}} 
+                                <img style={this.props.isCreate || this.state.isPreview ? {} : {border: "1px dashed black"}} 
                                     draggable={false} alt="sticker" src={item.src}/>
                             </Slot>)
                     })}
@@ -702,9 +710,9 @@ export default class extends Component {
                                 onResizeStop={(prev,next)=>{this.onResizeStop(HISTORYS.R_T,idx,prev,next)}}
                                 onClickActive={()=>{this.props.ActiveSlot('Textbox', idx)}} onClickDeactive={()=>{this.props.DeactiveSlot('Textbox', idx)}}
                                 isSort={this.state.frameStyle !== null && this.props.selectedSlot.indexOf(idx) !== -1 && this.props.selectedType.indexOf('Textbox') !== -1}
-                                orderIndex={this.state.textboxesOrder[idx]}>
+                                orderIndex={this.state.textboxesOrder[idx]} isCanvas={this.props.isCreate || this.state.isPreview ? true : false}>
 
-                                <div className="text-box" style={this.props.isCreate ? {} : {border: "1px dashed black",color: this.state.textColor[idx]}}
+                                <div className="text-box" style={this.props.isCreate || this.state.isPreview ? {} : {border: "1px dashed black",color: this.state.textColor[idx]}}
                                 contentEditable={true} ref={'textbox'+idx}>
                                 {item === null ? "" : item}
                                 </div>
