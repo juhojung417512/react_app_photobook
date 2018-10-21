@@ -80,8 +80,8 @@ export let GetPhotos = actions( GET_PHOTOS, async ()=>{
     return await Network.init().get('/photos')
 })
 
-export let CreatePhoto = actions( CREATE_PHOTO, (src)=>{
-    return {src : src}
+export let CreatePhoto = actions( CREATE_PHOTO, (src,size)=>{
+    return {src : src, size : size}
 })
 
 export let DeletePhoto = actions( DELETE_PHOTO, (src, idx)=>{

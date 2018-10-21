@@ -24,7 +24,14 @@ export default class extends Component {
         })
     }
 
-    componentDidUpdate(){
+    componentWillReceiveProps(nProps){
+        // if(this.state.photoList !== nProps.photo.props.photoList){
+        //     this.setState({
+        //         nowType: 'Photo',
+        //         photoList : nProps.photo.props.photoList
+        //     })
+        // }
+
         if(this.state.nowType !== this.props.state){
             switch(this.props.state){
                 case 'Photo':
@@ -51,17 +58,11 @@ export default class extends Component {
         }
     }
 
-    componentWillReceiveProps(nProps){
-        // if(this.state.photoList !== nProps.photo.props.photoList){
-        //     this.setState({
-        //         nowType: 'Photo',
-        //         photoList : nProps.photo.props.photoList
-        //     })
-        // }
-    }
-
     onClickTopItem = (type) =>{
         this.props.setType(type)
+        this.setState({
+            nowType : type
+        })
     }
 
     render() {

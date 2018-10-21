@@ -37,7 +37,7 @@ let mapStateToProps = (state)=>{
         template : state.photobook.template,
         isCreate  :state.photobook.isCreate,
         isPhoto : state.photobook.isPhoto,
-        photoSrc : state.photobook.photoSrc,
+        photoData : state.photobook.photoData,
         isSticker : state.photobook.isSticker,
         stickerId : state.photobook.stickerId,
         isTextBox : state.photobook.isTextBox,
@@ -127,7 +127,7 @@ export default class extends Component {
         }
         else if(nProps.isPhoto !== this.state.isPhoto) {
             if(nProps.isPhoto)
-                this.CreatePhoto(nProps.photoSrc,null)
+                this.CreatePhoto(nProps.photoData,null)
             nProps.ResetPhotoState()
             this.setState({
                 isPhoto : nProps.isPhoto
@@ -386,12 +386,8 @@ export default class extends Component {
             isUpdatePreview = false
         }
         if(isUpdatePreview && this.refs.template !== undefined){
-            this.updatePreview()
+            console.log("refresh template!!")
         }
-    }
-
-    updatePreview = () =>{
-        this.props.updatePreview(this.refs.template)
     }
 
     CreatePhotobook = async () =>{
@@ -402,12 +398,13 @@ export default class extends Component {
     }
 
     CreatePhoto = (data,idx)=>{
+        //api - size, src need
         if(data !== undefined && data !== null){
             if(idx === null){
                 this.setState({
-                    photos: [...this.state.photos,{src: data.src,display : true}],
+                    photos: [...this.state.photos,{src: data.src ,display : true}],
                     photosDragPos : [...this.state.photosDragPos,null],
-                    photosResize : [...this.state.photosResize,null],
+                    photosResize : [...this.state.photosResize, data.size ? data.size : null],
                     photosOrder : [...this.state.photosOrder,1]
                 },()=>{
                     this.props.CreateHistory(HISTORYS.C_P,data.src,this.state.photos.length - 1)
@@ -656,7 +653,6 @@ export default class extends Component {
     }
 
     render() {
-        console.log(this.props.isPreview)
         if(this.props.template !== null)
             return (
                 <div className="frame" ref="template" style={{

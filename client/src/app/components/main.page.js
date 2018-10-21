@@ -96,7 +96,6 @@ export default class extends Component {
             nowTemplateId : null,
             sticker_count : null,
             dividerState : 'Template',
-            templateCanvasList : [],
             templates : [],
             templateIndex : 0,
             isPreview : false,
@@ -108,8 +107,9 @@ export default class extends Component {
             history.replace('/')
         this.setState({
             templates : [true,true],
-            templateId : [null,null]
+            templateId : [null,null],
         })
+
         this.props.SetTemaplteIdx(0)
         this.props.GetStickers() // sticker api need
         this.props.GetPhotos()
@@ -117,12 +117,8 @@ export default class extends Component {
 
     componentWillReceiveProps(nProps){
         if(this.props.photoList !== nProps.photoList || this.state.addPhotoList.length < nProps.photoList.length){
-            let list = []
-            for(var i = 0; i < nProps.photoList.length; i++){
-                list.push(nProps.photoList[i].src)
-            }
             this.setState({
-                addPhotoList : [...list, ...this.state.addPhotoList]
+                addPhotoList : [...nProps.photoList, ...this.state.addPhotoList]
             })
         } else if(this.state.sticker_count !== nProps.stickerList.length + 1){
             this.setState({
@@ -210,23 +206,14 @@ export default class extends Component {
         this.props.OrderSlot(type)
     }
 
-    updatePreview = (preview,idx)=>{
-        // 어떻게 할지 고민중
-        if(this.state.templateCanvasList.length <= idx){
-            this.setState({templateCanvasList : [...this.state.templateCanvasList, preview]})    
-        }
-        else if(this.state.templateCanvasList[idx] !== preview){
-            this.state.templateCanvasList[idx] = preview
-            this.setState({templateCanvasList : this.state.templateCanvasList})
-        }
-    }
-
     changeTemplate = (idx)=>{
         this.props.SetTemaplteIdx(idx)
+        this.props.GetStickers() // sticker api need
+        this.props.GetPhotos()
         this.setState({
             templateIndex : idx,
             nowTemplateId : this.state.templateIds[idx],
-            dividerState  : null
+            dividerState  : 'Template'
         })
     }
 
@@ -272,9 +259,11 @@ export default class extends Component {
     }
 
     render() {
+        console.log("re-render")
         let undoStyle = HistoryManager.init().CheckUndo() === true ? "menu-txt right-border click" : "menu-txt right-border"
         let redoStyle = HistoryManager.init().CheckRedo() === true ? "menu-txt right-border click" : "menu-txt right-border"
         let isSlotStyle = this.props.selectedSlot.length > 0 ? "menu-txt right-border click" : "menu-txt right-border"
+        /// template previewwwwwwww...w.w.ww..ww.w.
         return ( <div className="main-page transition-item">
             <div className="top-bar">
                 <div className="menu-txt right-border click">
@@ -323,14 +312,14 @@ export default class extends Component {
                 {this.state.isPreview ? <Preview onExit={this.onClickClosePreview} preview={this.props.preview}/> : <div></div>}
                 <Divider 
                     templateIndex = {this.state.templateIndex}
-                    state={this.state.dividerState} setType={(type)=>{this.setState({dividerState: type})}}
-                >
-                {this.state.dividerState === 'Template' ? <Templatezone setTemplate={(templateId)=>{this.setTemplateId(templateId)}} templateIndex={this.state.templateIndex}/>
-                : this.state.dividerState === 'Photo' ? <Photozone photoList={this.state.addPhotoList} setPhoto={(photo)=>{this.setState({photoList : [...this.state.photoList, photo]})}}
-                addPhoto={(photo)=>{this.setState({addPhotoList : [...this.state.addPhotoList, photo]})}}/> 
-                : this.state.dividerState === 'Sticker' ? <Sticker count={this.state.sticker_count} createSticker={(idx)=>{this.props.CreateSticker(idx)}} 
-                stickerList={this.props.stickerList}/> 
-                : null }
+                    state={this.state.dividerState} setType={(type)=>{this.setState({dividerState: type})}}>
+                    
+                    {this.state.dividerState === 'Template' ? <Templatezone setTemplate={(templateId)=>{this.setTemplateId(templateId)}} templateIndex={this.state.templateIndex}/>
+                    : this.state.dividerState === 'Photo' ? <Photozone photoList={this.state.addPhotoList} setPhoto={(photo)=>{this.setState({photoList : [...this.state.photoList, photo]})}}
+                    addPhoto={(photo)=>{this.setState({addPhotoList : [...this.state.addPhotoList, photo]})}}/> 
+                    : this.state.dividerState === 'Sticker' ? <Sticker count={this.state.sticker_count} createSticker={(idx)=>{this.props.CreateSticker(idx)}} 
+                    stickerList={this.props.stickerList}/> 
+                    : null }
                 </Divider>
                 <div className="template-page">
                     <div className="template-frame" >
@@ -338,17 +327,14 @@ export default class extends Component {
                         {this.state.templates.map((raw,idx)=>{
                             if(idx !== this.state.templateIndex)
                                 return
-                            return(<Template templateIdx={idx} templateId={this.state.nowTemplateId} photoList={this.state.photoList} updatePreview={(canvas)=>{this.updatePreview(canvas,0)}}/>)
+                            return(<Template key={idx} templateIdx={idx} templateId={this.state.nowTemplateId} 
+                                    photoList={this.state.photoList} />)
                         })}
                         <div className="frame-button" onClick={this.onClickTemplateMove.bind(this,'next')}><img alt="frame-button" src={require('../resources/blue_right.png')}/></div>
                     </div>
                     <div className="paging">
                             <div className="paging-button"><img alt="paging-button" src={require('../resources/bottom_left.png')}/></div>
-                            <div className="template-pages">
-                                {this.state.templateCanvasList.map((raw,idx)=>{
-                                    console.log(raw)
-                                    // 여기에 현재 작업 환경 미리보는 창이 들어갈 예정
-                                })}
+                            <div ref="templatePreviews" className="template-pages">
                             </div>
                             <div className="paging-button"><img alt="paging-button" src={require('../resources/bottom_right.png')}/></div>
                     </div>

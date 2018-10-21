@@ -39,7 +39,6 @@ export default class extends Component {
     renderSquare(i) {
         const x = i % this.props.count;
         const y = Math.floor(i / this.props.count);
-        console.log(this.props.count, i)
         if(this.props.count-1 === i)
         {
             return (

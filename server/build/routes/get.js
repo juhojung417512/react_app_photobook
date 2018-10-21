@@ -24,14 +24,39 @@ router.get('/', function (req, res) {
 
 router.get('/photos', async function (req, res) {
     var photo_list = await _sqlmgr2.default.getPhotos();
+    var list = [];
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = photo_list[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var p = _step.value;
+
+            list.push({ id: p.id, src: p.src, size: { width: p.width, height: p.height } });
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
     return res.json({
-        photoList: photo_list.length === 0 ? null : photo_list
+        photoList: list
     });
 });
 
 router.get('/stickers', async function (req, res) {
     var sticker_list = await _sqlmgr2.default.getStickers();
-    console.log(sticker_list);
     return res.json({
         stickerList: sticker_list.length === 0 ? null : sticker_list
     });

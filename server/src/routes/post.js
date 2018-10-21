@@ -3,23 +3,31 @@ import multer from 'multer'
 import mysql from '../../scripts/sqlmgr'
 import fs from "fs"
 import path from "path"
-
+import imagick from 'imagemagick'
 const router = express.Router();
 const storage = multer({ dest: '../../photos', limits: { fileSize: 5 * 1024 * 1024 } }) 
 const upload = storage.single('file');
 
 let filename
 router.post("/upload/file",upload,(req,res)=>{
-    console.log(req.file)
-    let img_id = Math.floor(Math.random() * 10000).toString() + req.file.originalname ;
-    fs.rename(req.file.path, 'resources/'+ img_id ,(err)=>{
+    let size = null
+    let img_id = 'resources/' + Math.floor(Math.random() * 10000).toString() + req.file.originalname ;
+    filename = img_id
+    fs.rename(req.file.path, img_id ,(err)=>{
         if(err){
             console.log(err)
             filename = null
         }
     })
-    filename = 'resources/'+ img_id
-    return res.json({filename: filename})
+    // image size return
+    // console.log(path.join(__dirname, '../../', img_id))
+    // imagick.identify(path.join(__dirname, '../../', img_id), function(err, features){
+    //     if (err) throw err
+    //     console.log("SEX")
+        
+    //     console.log(features)
+    // })
+    return res.json({src: filename, size : {width : 300, height : 300}})
 })
 
 router.post("/upload/photobook",(req,res)=>{

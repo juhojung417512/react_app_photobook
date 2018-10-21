@@ -15,7 +15,7 @@ let mapStateToProps = (state)=>{
 
 let mapDispatchToProps = (dispatch) => {
     return {
-        CreatePhoto : (src)=>dispatch(CreatePhoto(src)),
+        CreatePhoto : (src,size)=>dispatch(CreatePhoto(src,size)),
     }
 }
 @hot(module)
@@ -60,17 +60,16 @@ export default class extends Component {
             return alert("사진 불러오기 실패! (지원하지 않는 확장자 입니다)")
         
         let res = await Network.init().UploadFile(ev.target.files[0])
-        if('filename' in res && res.filename !== null)
-            this.props.addPhoto(res.filename)
+        if('src' in res && res.src !== null)
+            this.props.addPhoto(res)
         else
-            alert("사진 불러오기 실패! (관리자에게 문의해주세요)")
+            alert("사진 불러오기 실패! 관리자에게 문의해주세요.")
     }
-    //this.state.photoList.length 요부분봐야함
     render() {
         return (
             <div className="tools">
                 <div className="photo-zone"> 
-                    <Photodnd count={this.state.photoList.length +1} createPhoto={(src)=>{this.props.CreatePhoto(src)}} // this.props.createphoto 
+                    <Photodnd count={this.state.photoList.length +1} createPhoto={(src,size)=>{this.props.CreatePhoto(src,size)}} // this.props.createphoto 
                         photoList={this.state.photoList}/>
                 </div>
                 <div className="photo-upload">

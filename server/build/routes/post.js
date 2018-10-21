@@ -24,6 +24,10 @@ var _path = require('path');
 
 var _path2 = _interopRequireDefault(_path);
 
+var _imagemagick = require('imagemagick');
+
+var _imagemagick2 = _interopRequireDefault(_imagemagick);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var router = _express2.default.Router();
@@ -32,15 +36,24 @@ var upload = storage.single('file');
 
 var filename = void 0;
 router.post("/upload/file", upload, function (req, res) {
-    var img_id = Math.floor(Math.random() * 10000).toString() + req.file.originalname;
-    _fs2.default.rename(req.file.path, 'resources/' + img_id, function (err) {
+    var size = null;
+    var img_id = 'resources/' + Math.floor(Math.random() * 10000).toString() + req.file.originalname;
+    filename = img_id;
+    _fs2.default.rename(req.file.path, img_id, function (err) {
         if (err) {
             console.log(err);
             filename = null;
         }
     });
-    filename = 'resources/' + img_id;
-    return res.json({ filename: filename });
+    // image size return
+    // console.log(path.join(__dirname, '../../', img_id))
+    // imagick.identify(path.join(__dirname, '../../', img_id), function(err, features){
+    //     if (err) throw err
+    //     console.log("SEX")
+
+    //     console.log(features)
+    // })
+    return res.json({ src: filename, size: { width: 300, height: 300 } });
 });
 
 router.post("/upload/photobook", function (req, res) {

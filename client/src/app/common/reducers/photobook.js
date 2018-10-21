@@ -42,7 +42,7 @@ let initialState={
     templateList : null,
     isCreate : false,
     photoList : [],
-    photoSrc : null,
+    photoData : null,
     stickerList : null,
     stickerId : null,
     isPhoto : false,
@@ -136,7 +136,7 @@ export default function photobook(state=initialState, action){
             return {
                 ...state,
                 isPhoto: true,
-                photoSrc : action.payload
+                photoData : action.payload
             }
         case DELETE_PHOTO :
             return{
@@ -146,7 +146,7 @@ export default function photobook(state=initialState, action){
             return {
                 ...state,
                 isPhoto : false,
-                photoSrc : null
+                photoData : null
             }
         case DRAG_PHOTO : 
             return {

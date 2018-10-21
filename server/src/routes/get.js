@@ -10,8 +10,12 @@ router.get('/',(req,res)=>{
 
 router.get('/photos',async (req,res)=>{
     let photo_list = await mysql.getPhotos()
+    let list = []
+    for(var p of photo_list){
+        list.push({id : p.id, src: p.src, size: {width: p.width, height: p.height}})
+    }
     return res.json({
-        photoList : photo_list.length === 0 ? null : photo_list
+        photoList : list
     })
 })
 

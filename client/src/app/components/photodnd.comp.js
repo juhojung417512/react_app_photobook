@@ -17,6 +17,7 @@ export default class extends Component {
         this.state={
             folderPosition : [0,0],
             targetId : null,
+            size : null
         };
     }
 
@@ -68,11 +69,12 @@ export default class extends Component {
             this.setState({
                 folderPosition : [0,0]
             })
-            return this.props.createPhoto(this.state.targetId)
+            return this.props.createPhoto(this.state.targetId,this.state.size)
         }
         else if(i !== this.props.count-1)
-            return <Photo id={this.props.photoList[i]} img_src={this.props.photoList[i]} targetId={this.state.targetId} 
-                setTargetId={(targetId)=>{this.setState({targetId : targetId})}}/>;        
+            return <Photo id={this.props.photoList[i].src} img_src={this.props.photoList[i].src} 
+                size={this.props.photoList[i].size} targetId={this.state.targetId} 
+                setTarget={(targetId,size)=>{this.setState({targetId : targetId, size: size})}}/>;        
     }
 
     render() {
