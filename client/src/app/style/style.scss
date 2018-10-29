@@ -26,10 +26,104 @@ body{
     background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
     
 }
+
+.preview-frame{
+    background-color: white;
+    padding: 10px 15px;
+
+    .slots{
+        z-index: 3;
+        .slot{
+            position: absolute;
+            .text-box{
+                width: 100%;
+                height: 100%;
+            }
+            .slot-box{
+                .text-div{
+                    padding: 5px;
+                    position: absolute;
+                    border-radius: 50%;
+                    background-color: #000;
+                    color: #fff;
+                    z-index: 10;
+                    width: 20px;
+                    height: 20px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+
+                }
+                .left-top{
+                    top:-10px;
+                    left:-10px;
+                }
+                .right-bottom{
+                    right:-35px;
+                    bottom:0;
+                }
+                .right-bottom2{
+                    right:-35px;
+                    bottom:35px;
+                }
+                .handle{
+                    flex:1;
+                    display: flex;
+                    
+                }
+                .exit-div{
+                    flex:1;
+                    display:flex;
+                }
+                .text-toolbox{
+                    display: flex;
+                    flex:1;
+                    .color-opener{
+                        display: flex;
+                    }
+                }
+                i{
+                    flex:1;
+                    font-size:20px;
+                }
+            }
+            img{
+                width:100%;
+                height:100%;
+            }
+        }
+    }
+    .frame-img{
+        width: 100%;
+        height: 100%;
+    }
+    .photo-square{
+        height: 100%;
+        width: 100%;
+        flex:1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        .photo{
+            flex:1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            img{
+                position: relative;
+                width:400px;
+                height: 200px
+            }
+        }
+    }
+}
+
 .preview-modal{
     display:flex;
     justify-content: center;
     align-items: center;
+    z-index: 999;
     .preview-div{
         background-color: white;
         display: flex;
@@ -62,17 +156,99 @@ body{
                 padding-right: 8px;
             }
         }
-        .content{
-            display: flex;
-            flex:15;
-            background-color: #EFF1F6;
-            justify-content: center;
-            align-items: center;
-            >canvas{
-                z-index: 4;
-                height: 500px;
+        .content-div{
+            display:flex;
+            flex-direction: row;
+            flex: 10;
+            .paging-button{
+                display: flex;
+                flex: 2 ;
+                align-items: center;
+                background-color: #EFF1F6;
+                justify-content: center;
+                >img{
+                    width: 50%;
+                    height: 15%;
+    
+                    cursor: pointer;
+
+                    &:hover{
+                        background-color: #D4D6DB;
+                    }
+                }
+                
+            }
+            .content{
+                flex:10;
+                background-color: #EFF1F6;
+                justify-content: center;
+                align-items: center;
+                .slots{
+                    z-index: 3;
+                    transform: translate(0,-260px);
+                    .slot{
+                        position: absolute;
+                        .text-box{
+                            width: 100%;
+                            height: 100%;
+                        }
+                        .slot-box{
+                            .text-div{
+                                padding: 5px;
+                                position: absolute;
+                                border-radius: 50%;
+                                background-color: #000;
+                                color: #fff;
+                                z-index: 10;
+                                width: 20px;
+                                height: 20px;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+            
+                            }
+                            .left-top{
+                                top:-10px;
+                                left:-10px;
+                            }
+                            .right-bottom{
+                                right:-35px;
+                                bottom:0;
+                            }
+                            .right-bottom2{
+                                right:-35px;
+                                bottom:35px;
+                            }
+                            .handle{
+                                flex:1;
+                                display: flex;
+                                
+                            }
+                            .exit-div{
+                                flex:1;
+                                display:flex;
+                            }
+                            .text-toolbox{
+                                display: flex;
+                                flex:1;
+                                .color-opener{
+                                    display: flex;
+                                }
+                            }
+                            i{
+                                flex:1;
+                                font-size:20px;
+                            }
+                        }
+                        img{
+                            width:100%;
+                            height:100%;
+                        }
+                    }
+                }
             }
         }
+        
     }
 }
 .filedir{
@@ -250,6 +426,7 @@ body{
             }
 
             .menu-txt{
+                height: 60%;
                 padding:10px;
                 display:flex;
                 flex-direction: column;
@@ -441,9 +618,28 @@ body{
 
                     .template-pages{
                         display: flex;
-                        flex: 30;
-                        justify-content: center;
+                        flex:25;
+                        justify-content: flex-start;
+                        padding : 0 20px;
                         align-items: center;
+                        overflow-x: auto;
+                        overflow-y: hidden;
+                        
+                        .preview-box{
+                            justify-content: center;
+                            align-items: center;
+                            height:90px;
+                            width: 180px;
+                            .preview-frame{
+                                &:hover{
+                                    background-color: #5FCDF3;
+                                }
+                                .slots{
+                                    z-index: 3;
+                                    transform: scale(0.15) translate(0,-260px);
+                                }
+                            }
+                        }
                     }
                 }
                 
@@ -470,6 +666,7 @@ body{
                             background-color: #EBEBEB
                         }
                     }
+
                     .frame{
                         display:flex;
                         flex:8;
@@ -477,68 +674,72 @@ body{
                         align-items: center;
                         background-color: white;
                         height:80%;
-                        .slot{
-                            position: absolute;
-                            .text-box{
-                                width: 100%;
-                                height: 100%;
-                            }
-                            .slot-box{
-                                // transform: translate(0,-3px);
-                                // position: absolute;
-                                .text-div{
-                                    padding: 5px;
-                                    position: absolute;
-                                    border-radius: 50%;
-                                    background-color: #000;
-                                    color: #fff;
-                                    // box-shadow: 0px 0px 10px #555;
-                                    z-index: 10;
-                                    width: 20px;
-                                    height: 20px;
-                                    display: flex;
-                                    justify-content: center;
-                                    align-items: center;
-    
-                                    cursor: pointer;
+                        .slots{
+                            position: relative;
+                            height: 100%;
+                            .slot{
+                                position: absolute;
+                                .text-box{
+                                    width: 100%;
+                                    height: 100%;
                                 }
-                                .left-top{
-                                    top:-10px;
-                                    left:-10px;
-                                }
-                                .right-bottom{
-                                    right:-35px;
-                                    bottom:0;
-                                }
-                                .right-bottom2{
-                                    right:-35px;
-                                    bottom:35px;
-                                }
-                                .handle{
-                                    flex:1;
-                                    display: flex;
-                                    
-                                }
-                                .exit-div{
-                                    flex:1;
-                                    display:flex;
-                                }
-                                .text-toolbox{
-                                    display: flex;
-                                    flex:1;
-                                    .color-opener{
+                                .slot-box{
+                                    // transform: translate(0,-3px);
+                                    // position: absolute;
+                                    .text-div{
+                                        padding: 5px;
+                                        position: absolute;
+                                        border-radius: 50%;
+                                        background-color: #000;
+                                        color: #fff;
+                                        // box-shadow: 0px 0px 10px #555;
+                                        z-index: 10;
+                                        width: 20px;
+                                        height: 20px;
                                         display: flex;
+                                        justify-content: center;
+                                        align-items: center;
+        
+                                        cursor: pointer;
+                                    }
+                                    .left-top{
+                                        top:-10px;
+                                        left:-10px;
+                                    }
+                                    .right-bottom{
+                                        right:-35px;
+                                        bottom:0;
+                                    }
+                                    .right-bottom2{
+                                        right:-35px;
+                                        bottom:35px;
+                                    }
+                                    .handle{
+                                        flex:1;
+                                        display: flex;
+                                        
+                                    }
+                                    .exit-div{
+                                        flex:1;
+                                        display:flex;
+                                    }
+                                    .text-toolbox{
+                                        display: flex;
+                                        flex:1;
+                                        .color-opener{
+                                            display: flex;
+                                        }
+                                    }
+                                    i{
+                                        flex:1;
+                                        font-size:20px;
+                                        cursor: pointer;
                                     }
                                 }
-                                i{
-                                    flex:1;
-                                    font-size:20px;
-                                    cursor: pointer;
+                                img{
+                                    width:100%;
+                                    height:100%;
                                 }
-                            }
-                            img{
-                                width:100%;
-                                height:100%;
                             }
                         }
                         .frame-img{

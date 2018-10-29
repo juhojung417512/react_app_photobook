@@ -41,7 +41,7 @@ class SQLMgr {
         return await this.mysql.querySelectOne(`
             SELECT *
             FROM template
-            WHERE templateId = ?
+            WHERE id = ?
         `,[id])
     }
 }

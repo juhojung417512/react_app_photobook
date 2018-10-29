@@ -32,9 +32,8 @@ export const REDO_HISTORY = "REDO_HISTORY"
 export const UNDO_HISTORY = "UNDO_HISTORY"
 export const CREATE_HISTORY = "CREATE_HISTORY"
 export const SET_TEMPLATE_IDX = "SET_TEMPLATE_IDX"
-export const CALL_PREVIEW = "CALL_PREVIEW"
-export const RECEIVE_PREVIEW = "RECEIVE_PREVIEW"
 export const SET_PREVIEW = "SET_PREVIEW"
+export const CALL_PREVIEW = "CALL_PREVIEW"
 
 export let SetTemaplteIdx = actions( SET_TEMPLATE_IDX, (idx)=>{
     return idx
@@ -53,7 +52,7 @@ export let ResetTemplateInfo = actions (RESET_TEMPLATE_INFO, ()=>{
 })
 
 export let UploadPhotobook = actions (UPLOAD_PHOTOBOOK, async(zip)=>{
-    return await Network.init().post('/upload/photobook',zip)
+    return await Network.init().post('/upload/photobook',{photobook : zip})
 })
 
 export let CreatePhotobook = actions (CREATE_PHOTOBOOK, ()=>{
@@ -156,14 +155,10 @@ export let CreateHistory = actions (CREATE_HISTORY, (type,id,idx)=>{
     return {type :type, id : id ,idx : idx}
 })
 
-export let CallPreview = actions( CALL_PREVIEW, ()=>{
-    return true
+export let SetPreview = actions(SET_PREVIEW, (preview,idx)=>{
+    return {preview : preview, idx: idx}
 })
 
-export let ReceivePreview = actions( RECEIVE_PREVIEW, ()=>{
+export let CallPreview = actions(CALL_PREVIEW, ()=>{
     return true
-})
-
-export let SetPreview = actions( SET_PREVIEW, (preview)=>{
-    return preview
 })

@@ -30,7 +30,7 @@ export default class Network{
         let form = new FormData();
         form.append("file",file)
         
-        let res = await fetch('/api/post/upload/file',{
+        let res = await fetch('/api/post/upload/image',{
             method: 'POST',
             body: form
         })

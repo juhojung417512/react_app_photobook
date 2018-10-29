@@ -27,7 +27,6 @@ import {
     UNDO_HISTORY,
     REDO_HISTORY,
     CALL_PREVIEW,
-    RECEIVE_PREVIEW,
     SET_PREVIEW
 } from '../actions'
 import {HistoryManager} from "../utils"
@@ -39,6 +38,7 @@ let stateStore = {
 
 let initialState={
     template : null,
+    templateIndex : null,
     templateList : null,
     isCreate : false,
     photoList : [],
@@ -55,8 +55,8 @@ let initialState={
     selectedType : [],
     sortStyle : null,
     orderStyle : null,
-    preivew : null,
-    isPreview : false
+    isPreview : false,
+    preview : []
 }
 
 export default function photobook(state=initialState, action){
@@ -65,8 +65,12 @@ export default function photobook(state=initialState, action){
         case SET_TEMPLATE_IDX : 
             if(Object.keys(stateStore).length < action.payload + 1)
                 stateStore[action.payload] = initialState
+            if(state.templateIndex !== null)
+                stateStore[state.templateIndex] = state
+            console.log(stateStore[action.payload].photoList)
             return{
-                ...stateStore[action.payload]
+                ...stateStore[action.payload],
+                templateIndex : action.payload
             }
         case GET_TEMPLATES:
             return {
@@ -219,20 +223,18 @@ export default function photobook(state=initialState, action){
                 pivot : action.payload === null ? state.pivot : action.payload.pivot,
             }
         case CALL_PREVIEW : 
-            return{
+            return {
                 ...state,
                 isPreview : true
             }
-        case RECEIVE_PREVIEW :
+        case SET_PREVIEW : 
+            state.preview[action.payload.idx] = action.payload.preview
             return{
                 ...state,
+                preview : state.preview,
                 isPreview : false
             }
-        case SET_PREVIEW : 
-            return{
-                ...state,
-                preview : action.payload
-            }
+                
         default : 
             return state
     }

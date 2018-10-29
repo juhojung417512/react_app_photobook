@@ -24,10 +24,6 @@ var _path = require('path');
 
 var _path2 = _interopRequireDefault(_path);
 
-var _imagemagick = require('imagemagick');
-
-var _imagemagick2 = _interopRequireDefault(_imagemagick);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var router = _express2.default.Router();
@@ -35,7 +31,7 @@ var storage = (0, _multer2.default)({ dest: '../../photos', limits: { fileSize: 
 var upload = storage.single('file');
 
 var filename = void 0;
-router.post("/upload/file", upload, function (req, res) {
+router.post("/upload/image", upload, function (req, res) {
     var size = null;
     var img_id = 'resources/' + Math.floor(Math.random() * 10000).toString() + req.file.originalname;
     filename = img_id;

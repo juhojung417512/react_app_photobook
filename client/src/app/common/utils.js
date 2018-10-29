@@ -2,6 +2,10 @@ import html2canvas from 'html2canvas'
 import jszip from 'jszip'
 import {HISTORYS,MaxHistorys} from './constants'
 
+export async function elem2canvas(content,...args){
+    return await html2canvas(content, {useCORS: true, logging: false, ...args[0]})
+}
+
 export async function html2zip(content,props){
     return await html2canvas(content, {useCORS: true}).then(async(canvas) => {
         let zip = new jszip()

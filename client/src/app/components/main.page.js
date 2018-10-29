@@ -16,7 +16,7 @@ import Template from './template.comp'
 import Sticker from './sticker.comp'
 import Divider from './divider.comp'
 import { PHOTOBOOK_LIST ,SORT_LIST, ORDER_LIST} from '../common/constants'
-import {HistoryManager} from '../common/utils'
+import {HistoryManager, elem2canvas} from '../common/utils'
 import Preview from './preview.comp'
 
 import {
@@ -33,6 +33,7 @@ import {
     CreateTextBox,
     CallPreview
 } from "../common/actions"
+import { timingSafeEqual } from 'crypto';
 
 let mapStateToProps = (state) => {
     return {
@@ -47,7 +48,6 @@ let mapStateToProps = (state) => {
         redo : state.photobook.redo,
         undo : state.photobook.undo,
         pivot : state.photobook.pivot,
-        preview : state.photobook.preview,
         photoList : state.photobook.photoList
     }
 }
@@ -99,6 +99,7 @@ export default class extends Component {
             templates : [],
             templateIndex : 0,
             isPreview : false,
+            previewCanvas : [],
         };
     }
 
@@ -107,7 +108,7 @@ export default class extends Component {
             history.replace('/')
         this.setState({
             templates : [true,true],
-            templateId : [null,null],
+            templateIds : [null,null],
         })
 
         this.props.SetTemaplteIdx(0)
@@ -117,6 +118,7 @@ export default class extends Component {
 
     componentWillReceiveProps(nProps){
         if(this.props.photoList !== nProps.photoList || this.state.addPhotoList.length < nProps.photoList.length){
+            console.log(this.state.addPhotoList)
             this.setState({
                 addPhotoList : [...nProps.photoList, ...this.state.addPhotoList]
             })
@@ -210,10 +212,20 @@ export default class extends Component {
         this.props.SetTemaplteIdx(idx)
         this.props.GetStickers() // sticker api need
         this.props.GetPhotos()
+        if(idx >= this.state.templates.length){
+            this.setState({
+                ...this.state,
+                templates : [...this.state.templates,true],
+                templateIds : [...this.state.templateIds,null]
+            })    
+        }
+
         this.setState({
+            ...this.state,
             templateIndex : idx,
             nowTemplateId : this.state.templateIds[idx],
-            dividerState  : 'Template'
+            dividerState  : 'Template',
+            previewCanvas : this.state.previewCanvas
         })
     }
 
@@ -222,7 +234,7 @@ export default class extends Component {
         if(type === 'prev' && idx - 1 >= 0){
             this.changeTemplate(idx - 1)
         }
-        else if(type === 'next' && idx + 1 < this.state.templates.length){
+        else if(type === 'next'){
             this.changeTemplate(idx + 1)
         }
     }
@@ -230,7 +242,7 @@ export default class extends Component {
     setTemplateId = (id)=>{
         this.state.templateIds[this.state.templateIndex] = id
         this.setState({
-            templateId:this.state.templateIds,
+            templateIds : this.state.templateIds,
             nowTemplateId : id
         })
     }
@@ -244,12 +256,9 @@ export default class extends Component {
     }
 
     onClickPreview = ()=>{
-        this.props.CallPreview()
-        setTimeout(() => {
-            this.setState({
-                isPreview : true
-            })
-        }, 1500);
+        this.setState({
+            isPreview : true
+        })
     }
 
     onClickClosePreview = ()=>{
@@ -258,12 +267,69 @@ export default class extends Component {
         })
     }
 
+    updatePreview = (template,idx) =>{
+        if(template === undefined || this.refs.previewBox0 === undefined || this.state.templateIndex !== idx)
+            return
+
+        let clone = template.cloneNode(true)
+        
+        let child = eval('this.refs.previewBox'+idx+'.appendChild(clone)')
+        if(this.state.previewCanvas[idx] !== undefined){
+            eval('this.refs.previewBox'+idx+'.removeChild(this.refs.previewBox'+idx+'.children[0])')
+            child.classList.add('preview-frame')
+            child.addEventListener('click',()=>{
+                this.onClickCanvas(idx)
+            })
+            this.state.previewCanvas[idx] = child
+            this.setState({
+                previewCanvas : this.state.previewCanvas,
+            })
+        } else{
+            child.classList.add('preview-frame')
+            child.addEventListener('click',()=>{
+                this.onClickCanvas(idx)
+            })
+            this.setState({
+                previewCanvas : [...this.state.previewCanvas, child],
+            })
+        }
+        
+    }
+    //     elem2canvas(template).then((canvas)=>{
+    //         if(this.state.previewCanvas[idx] !== undefined){
+    //             let img = new Image();
+    //             let ctx = this.state.previewCanvas[idx]
+    //             img.src = canvas.toDataURL()
+    //             img.onload = ()=>{
+    //                 ctx.getContext('2d').drawImage(img,ctx.width / 2 - img.width / 2, ctx.height / 2 - img.height / 2)
+    //                 this.state.previewCanvas[idx] = ctx
+    //                 this.setState({
+    //                     previewCanvas : this.state.previewCanvas
+    //                 })
+    //             }
+    //         } else{
+    //             let child = this.refs.templatePreviews.appendChild(canvas)
+    //             child.addEventListener('click',()=>{
+    //                 this.onClickCanvas(idx)
+    //             })
+    //             this.setState({
+    //                 previewCanvas : [...this.state.previewCanvas, child]
+    //             })
+    //         }
+    //     })
+    // }
+
+    onClickCanvas = (idx) =>{
+        if(this.state.templateIndex !== idx)
+            this.changeTemplate(idx)
+    }
+
     render() {
-        console.log("re-render")
+        // template is not open
         let undoStyle = HistoryManager.init().CheckUndo() === true ? "menu-txt right-border click" : "menu-txt right-border"
         let redoStyle = HistoryManager.init().CheckRedo() === true ? "menu-txt right-border click" : "menu-txt right-border"
         let isSlotStyle = this.props.selectedSlot.length > 0 ? "menu-txt right-border click" : "menu-txt right-border"
-        /// template previewwwwwwww...w.w.ww..ww.w.
+
         return ( <div className="main-page transition-item">
             <div className="top-bar">
                 <div className="menu-txt right-border click">
@@ -309,7 +375,7 @@ export default class extends Component {
             </div>
 
             <div className="contents">
-                {this.state.isPreview ? <Preview onExit={this.onClickClosePreview} preview={this.props.preview}/> : <div></div>}
+                {this.state.isPreview ? <Preview onExit={this.onClickClosePreview} preview={this.state.previewCanvas} /> : <div></div>}
                 <Divider 
                     templateIndex = {this.state.templateIndex}
                     state={this.state.dividerState} setType={(type)=>{this.setState({dividerState: type})}}>
@@ -322,21 +388,22 @@ export default class extends Component {
                     : null }
                 </Divider>
                 <div className="template-page">
-                    <div className="template-frame" >
+                    <div className="template-frame" ref="templateFrame" >
                         <div className="frame-button" onClick={this.onClickTemplateMove.bind(this,'prev')}><img alt="frame-button" src={require('../resources/blue_left.png')}/></div>
                         {this.state.templates.map((raw,idx)=>{
-                            if(idx !== this.state.templateIndex)
-                                return
-                            return(<Template key={idx} templateIdx={idx} templateId={this.state.nowTemplateId} 
-                                    photoList={this.state.photoList} />)
+                            return(<Template key={idx} templateIdx={idx} templateId={this.state.nowTemplateId} isVisible={idx === this.state.templateIndex} 
+                                    photoList={this.state.photoList} updatePreview={(template)=>{this.updatePreview(template,idx)}}/>)
                         })}
                         <div className="frame-button" onClick={this.onClickTemplateMove.bind(this,'next')}><img alt="frame-button" src={require('../resources/blue_right.png')}/></div>
                     </div>
                     <div className="paging">
-                            <div className="paging-button"><img alt="paging-button" src={require('../resources/bottom_left.png')}/></div>
+                            <div className="paging-button"><img draggable={false} alt="paging-button" src={require('../resources/bottom_left.png')}/></div>
                             <div ref="templatePreviews" className="template-pages">
+                                {this.state.templates.map((raw,idx)=>{
+                                    return(<div key={idx} ref={`previewBox${idx}`} className="preview-box"></div>)
+                                })}
                             </div>
-                            <div className="paging-button"><img alt="paging-button" src={require('../resources/bottom_right.png')}/></div>
+                            <div className="paging-button"><img draggable={false} alt="paging-button" src={require('../resources/bottom_right.png')}/></div>
                     </div>
                 </div>
                 

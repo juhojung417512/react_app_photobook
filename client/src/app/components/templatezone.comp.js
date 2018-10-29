@@ -59,7 +59,7 @@ export default class extends Component {
                             if(idx % 2 !==0)
                                 return
                             return(<div key={idx} className="template-icon">
-                                    <img draggable={false} alt={`template ${idx}`} src={item.frame} onClick={this.onClickTemplate.bind(this,item.templateId)}/>
+                                    <img draggable={false} alt={`template ${idx}`} src={item.frame} onClick={this.onClickTemplate.bind(this,item.id)}/>
                                 </div>)
                         }) : <div></div>}
                     </div>
@@ -68,7 +68,7 @@ export default class extends Component {
                             if(idx % 2 ===0)
                                 return
                             return(<div key={idx} className="template-icon">
-                                    <img draggable={false} alt={`template ${idx}`} src={item.frame} onClick={this.onClickTemplate.bind(this,item.templateId)}/>
+                                    <img draggable={false} alt={`template ${idx}`} src={item.frame} onClick={this.onClickTemplate.bind(this,item.id)}/>
                                 </div>)
                         }) : <div></div>}
                     </div>

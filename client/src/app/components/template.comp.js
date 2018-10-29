@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import ReactDOM  from 'react-dom'
 import { hot } from 'react-hot-loader'
 import { connect } from 'react-redux';
-import html2canvas from 'html2canvas'
-import {html2zip} from '../common/utils'
+
+import {html2zip, elem2canvas} from '../common/utils'
 import Slot from './slot.comp'
 import {HISTORYS, ORDER_LIST_TYPE, SORT_LIST_TYPE} from '../common/constants'
 
@@ -26,7 +26,6 @@ import {
     ResizeSticker,
     ResizeTextBox,
     CreateHistory,
-    ReceivePreview,
     SetPreview
 } from "../common/actions"
 
@@ -35,6 +34,7 @@ let mapStateToProps = (state)=>{
         templateList : state.photobook.templateList,
         stickerList : state.photobook.stickerList,
         template : state.photobook.template,
+        isPreview : state.photobook.isPreview,
         isCreate  :state.photobook.isCreate,
         isPhoto : state.photobook.isPhoto,
         photoData : state.photobook.photoData,
@@ -48,7 +48,6 @@ let mapStateToProps = (state)=>{
         selectedType : state.photobook.selectedType,
         sortStyle : state.photobook.sortStyle,
         orderStyle : state.photobook.orderStyle,
-        isPreview : state.photobook.isPreview
 	}
 }
 
@@ -72,8 +71,7 @@ let mapDispatchToProps = (dispatch) => {
         ResizeSticker : (idx,prev,next)=>dispatch(ResizeSticker(idx,prev,next)),
         ResizeTextBox : (idx,prev,next)=>dispatch(ResizeTextBox(idx,prev,next)),
         CreateHistory : (type, id, idx)=>dispatch(CreateHistory(type,id,idx)),
-        ReceivePreview : ()=>dispatch(ReceivePreview()),
-        SetPreview : (preview)=>dispatch(SetPreview(preview))
+        SetPreview : (preview,idx)=>dispatch(SetPreview(preview,idx))
     }
 }
 @hot(module)
@@ -108,11 +106,15 @@ export default class extends Component {
             orderStyle : null,
             sortStyle : null,
             frameStyle : null,
+            previewTime : true
         }
         this.board_count = 100
     }
+
+    componentDidMount(){
+    }
+
     componentWillReceiveProps(nProps) {
-        let isUpdatePreview = true
         if(nProps.templateId !== this.state.templateId){
             nProps.templateId === null || nProps.templateId === undefined ? this.props.ResetTemplateInfo() : this.props.GetTemplateInfo(nProps.templateId)
             this.setState({
@@ -124,6 +126,19 @@ export default class extends Component {
             this.setState({
                 isCreate : nProps.isCreate
             })
+        }
+        else if(nProps.isPreview !== this.state.isPreview){
+            let res = this.CreatePreview()
+            if(res === undefined)
+                return
+
+            nProps.SetPreview(res,this.props.templateIdx)
+            this.setState({
+                isPreview : nProps.isPreview
+            })
+        }
+        else if(this.props.isVisible === false){
+            return
         }
         else if(nProps.isPhoto !== this.state.isPhoto) {
             if(nProps.isPhoto)
@@ -148,22 +163,6 @@ export default class extends Component {
             this.setState({
                 isTextBox: nProps.isTextBox
             })
-        }
-        else if(nProps.isPreview !== this.state.isPreview){
-            if(nProps.isPreview)
-                this.CreatePreview()
-            nProps.ReceivePreview()
-            if(this.state.isPreview)
-                setTimeout(() => {
-                    this.setState({
-                        isPreview : nProps.isPreview
-                    })
-                }, 1500);
-            else
-                this.setState({
-                    isPreview : nProps.isPreview
-                })
-            
         }
         else if(nProps.orderStyle !== this.state.orderStyle){
             let maxOrder = this.state.maxOrder
@@ -382,12 +381,25 @@ export default class extends Component {
                 default:
                     break
             }
-        } else {
-            isUpdatePreview = false
         }
-        if(isUpdatePreview && this.refs.template !== undefined){
-            console.log("refresh template!!")
+    }
+
+    componentDidUpdate = (props, state)=>{
+        if(this.state.previewTime === true && this.refs.template !== undefined){
+            this.setState({
+                previewTime : false
+            })
+            this.props.updatePreview(this.refs.template)
+            setTimeout(()=>{
+                this.setState({
+                    previewTime : true
+                })
+            },500)
         }
+    }
+
+    CreatePreview = ()=>{
+        return this.refs.template
     }
 
     CreatePhotobook = async () =>{
@@ -643,15 +655,6 @@ export default class extends Component {
         }
     }
 
-    CreatePreview = async ()=>{
-        if(this.refs.template !== undefined){
-            let canvas = await html2canvas(this.refs.template, {useCORS: true})
-            this.props.SetPreview(canvas)
-        } else { 
-            alert("표시할 내용이 없습니다.")
-        }
-    }
-
     render() {
         if(this.props.template !== null)
             return (
@@ -659,68 +662,74 @@ export default class extends Component {
                         border: this.props.template.style_border,
                         justifyContent : this.state.frameStyle !== null ? this.state.frameStyle.justifyContent : 'center',
                         alignItems: this.state.frameStyle !== null ? this.state.frameStyle.alignItems : 'center',
+                        display: this.props.isVisible ? 'flex' : 'none'
                     }}>
-                    {this.state.photos.map((item,idx)=>{
-                        if(item.display === false)
-                            return
-                        return(
-                            <Slot key={idx} DeleteSlot={()=>{this.DeletePhoto(item.id,idx)}}
-                                dragForcePos={this.state.photosDragPos[idx]} onDragStart={()=>{this.onDragStart(HISTORYS.DRAG_P,idx)}}
-                                onDragStop={(prev,next)=>{this.onDragStop(HISTORYS.DRAG_P,idx,prev,next)}}
-                                resizeForceSize={this.state.photosResize[idx]} onResizeStart={()=>{this.onResizeStart(HISTORYS.R_P,idx)}} 
-                                onResizeStop={(prev,next)=>{this.onResizeStop(HISTORYS.R_P,idx,prev,next)}}
-                                onClickActive={()=>{this.props.ActiveSlot('Photo',idx)}} onClickDeactive={()=>{this.props.DeactiveSlot('Photo',idx)}}
-                                isSort={this.state.frameStyle !== null && this.props.selectedSlot.indexOf(idx) !== -1 && this.props.selectedType.indexOf('Photo') !== -1}
-                                orderIndex={this.state.photosOrder[idx]} isCanvas={this.props.isCreate || this.state.isPreview ? true : false}>
+                    <div className="slots">
+                        {this.state.photos.map((item,idx)=>{
+                            if(item.display === false)
+                                return
+                            return(
+                                <Slot key={idx} DeleteSlot={()=>{this.DeletePhoto(item.id,idx)}}
+                                    dragForcePos={this.state.photosDragPos[idx]} onDragStart={()=>{this.onDragStart(HISTORYS.DRAG_P,idx)}}
+                                    onDragStop={(prev,next)=>{this.onDragStop(HISTORYS.DRAG_P,idx,prev,next)}}
+                                    resizeForceSize={this.state.photosResize[idx]} onResizeStart={()=>{this.onResizeStart(HISTORYS.R_P,idx)}} 
+                                    onResizeStop={(prev,next)=>{this.onResizeStop(HISTORYS.R_P,idx,prev,next)}}
+                                    onClickActive={()=>{this.props.ActiveSlot('Photo',idx)}} onClickDeactive={()=>{this.props.DeactiveSlot('Photo',idx)}}
+                                    isSort={this.state.frameStyle !== null && this.props.selectedSlot.indexOf(idx) !== -1 && this.props.selectedType.indexOf('Photo') !== -1}
+                                    orderIndex={this.state.photosOrder[idx]} isCanvas={this.props.isCreate || this.state.isPreview ? true : false}
+                                    isVisible={this.props.isVisible}>
 
-                                <img style={this.props.isCreate || this.state.isPreview ? {} : {border: "1px dashed black"}} 
-                                    draggable={false} alt="photo_img" src={item.src}/>
-                            </Slot>)
-                    })}
-                    {this.state.stickers.map((item,idx)=>{
-                        if(item.display === false)
-                            return 
-                        return (
-                            <Slot key={idx} DeleteSlot={()=>{this.DeleteSticker(item.id,idx)}}
-                                dragForcePos={this.state.stickersDragPos[idx]} onDragStart={()=>{this.onDragStart(HISTORYS.DRAG_S,idx)}}
-                                onDragStop={(prev,next)=>{this.onDragStop(HISTORYS.DRAG_S,idx,prev,next)}}
-                                resizeForceSize={this.state.stickersResize[idx]} onResizeStart={()=>{this.onResizeStart(HISTORYS.R_S,idx)}} 
-                                onResizeStop={(prev,next)=>{this.onResizeStop(HISTORYS.R_S,idx,prev,next)}}
-                                onClickActive={()=>{this.props.ActiveSlot('Sticker',idx)}} onClickDeactive={()=>{this.props.DeactiveSlot('Sticker', idx)}}
-                                isSort={this.state.frameStyle !== null && this.props.selectedSlot.indexOf(idx) !== -1 && this.props.selectedType.indexOf('Sticker') !== -1}
-                                orderIndex={this.state.stickersOrder[idx]} isCanvas={this.props.isCreate || this.state.isPreview ? true : false}>
-                                
-                                <img style={this.props.isCreate || this.state.isPreview ? {} : {border: "1px dashed black"}} 
-                                    draggable={false} alt="sticker" src={item.src}/>
-                            </Slot>)
-                    })}
-                    {this.state.textboxes.map((item,idx)=>{
-                        if(item === false)
-                            return
-                        return (
-                            <Slot key={idx} defaultWidth={100} defaultHeight={100} isTextBox={true} ChangeTextColor={(color)=>{this.ChangeTextColor(idx,color)}}
-                                DeleteSlot={()=>{this.DeleteTextbox(true,idx)}} 
-                                dragForcePos={this.state.textboxesDragPos[idx]} onDragStart={()=>{this.onDragStart(HISTORYS.DRAG_T,idx)}}
-                                onDragStop={(prev,next)=>{this.onDragStop(HISTORYS.DRAG_T,idx,prev,next)}}
-                                resizeForceSize={this.state.textboxesResize[idx]} onResizeStart={()=>{this.onResizeStart(HISTORYS.R_T,idx)}} 
-                                onResizeStop={(prev,next)=>{this.onResizeStop(HISTORYS.R_T,idx,prev,next)}}
-                                onClickActive={()=>{this.props.ActiveSlot('Textbox', idx)}} onClickDeactive={()=>{this.props.DeactiveSlot('Textbox', idx)}}
-                                isSort={this.state.frameStyle !== null && this.props.selectedSlot.indexOf(idx) !== -1 && this.props.selectedType.indexOf('Textbox') !== -1}
-                                orderIndex={this.state.textboxesOrder[idx]} isCanvas={this.props.isCreate || this.state.isPreview ? true : false}>
+                                    <img style={this.props.isCreate || this.state.isPreview || this.props.selectedSlot.indexOf(idx) === -1 ? {} : {border: "1px dashed black"}} 
+                                        draggable={false} alt="photo_img" src={item.src}/>
+                                </Slot>)
+                        })}
+                        {this.state.stickers.map((item,idx)=>{
+                            if(item.display === false)
+                                return 
+                            return (
+                                <Slot key={idx} DeleteSlot={()=>{this.DeleteSticker(item.id,idx)}}
+                                    dragForcePos={this.state.stickersDragPos[idx]} onDragStart={()=>{this.onDragStart(HISTORYS.DRAG_S,idx)}}
+                                    onDragStop={(prev,next)=>{this.onDragStop(HISTORYS.DRAG_S,idx,prev,next)}}
+                                    resizeForceSize={this.state.stickersResize[idx]} onResizeStart={()=>{this.onResizeStart(HISTORYS.R_S,idx)}} 
+                                    onResizeStop={(prev,next)=>{this.onResizeStop(HISTORYS.R_S,idx,prev,next)}}
+                                    onClickActive={()=>{this.props.ActiveSlot('Sticker',idx)}} onClickDeactive={()=>{this.props.DeactiveSlot('Sticker', idx)}}
+                                    isSort={this.state.frameStyle !== null && this.props.selectedSlot.indexOf(idx) !== -1 && this.props.selectedType.indexOf('Sticker') !== -1}
+                                    orderIndex={this.state.stickersOrder[idx]} isCanvas={this.props.isCreate || this.state.isPreview ? true : false}
+                                    isVisible={this.props.isVisible}>
+                                    
+                                    <img style={this.props.isCreate || this.state.isPreview || this.props.selectedSlot.indexOf(idx) === -1 ? {} : {border: "1px dashed black"}} 
+                                        draggable={false} alt="sticker" src={item.src}/>
+                                </Slot>)
+                        })}
+                        {this.state.textboxes.map((item,idx)=>{
+                            if(item === false)
+                                return
+                            return (
+                                <Slot key={idx} defaultWidth={100} defaultHeight={100} isTextBox={true} ChangeTextColor={(color)=>{this.ChangeTextColor(idx,color)}}
+                                    DeleteSlot={()=>{this.DeleteTextbox(true,idx)}} 
+                                    dragForcePos={this.state.textboxesDragPos[idx]} onDragStart={()=>{this.onDragStart(HISTORYS.DRAG_T,idx)}}
+                                    onDragStop={(prev,next)=>{this.onDragStop(HISTORYS.DRAG_T,idx,prev,next)}}
+                                    resizeForceSize={this.state.textboxesResize[idx]} onResizeStart={()=>{this.onResizeStart(HISTORYS.R_T,idx)}} 
+                                    onResizeStop={(prev,next)=>{this.onResizeStop(HISTORYS.R_T,idx,prev,next)}}
+                                    onClickActive={()=>{this.props.ActiveSlot('Textbox', idx)}} onClickDeactive={()=>{this.props.DeactiveSlot('Textbox', idx)}}
+                                    isSort={this.state.frameStyle !== null && this.props.selectedSlot.indexOf(idx) !== -1 && this.props.selectedType.indexOf('Textbox') !== -1}
+                                    orderIndex={this.state.textboxesOrder[idx]} isCanvas={this.props.isCreate || this.state.isPreview ? true : false}
+                                    isVisible={this.props.isVisible}>
 
-                                <div className="text-box" style={this.props.isCreate || this.state.isPreview ? {} : {border: "1px dashed black",color: this.state.textColor[idx]}}
-                                contentEditable={true} ref={'textbox'+idx}>
-                                {item === null ? "" : item}
-                                </div>
-                            </Slot>)
-                    })}
+                                    <div className="text-box" style={this.props.isCreate || this.state.isPreview || this.props.selectedSlot.indexOf(idx) === -1 ? {} : {border: "1px dashed black",color: this.state.textColor[idx]}}
+                                    contentEditable={true} ref={'textbox'+idx}>
+                                    {item === null ? "" : item}
+                                    </div>
+                                </Slot>)
+                        })}
+                    </div>
                     <img draggable={false} className="frame-img zindex-0" alt="frame" src={this.props.template.frame}/>
                     {this.props.children}
                 </div>
             );
         else 
             return(
-                <div className="frame">
+                <div className="frame" ref="template">
                 </div>
             );
     }
