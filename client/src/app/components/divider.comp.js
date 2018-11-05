@@ -11,8 +11,8 @@ export default class extends Component {
         super();
         this.state = {
             nowType : null,
-            activeStyle : {borderBottom: '10px solid #5ACCF3'},
-            deactiveStyle : {borderBottom: '10px solid #EFF1F7'},
+            activeStyle : {borderBottom: '10px solid #EFF1F7',backgroundColor: '#5ACCF3', color:'white'},
+            deactiveStyle : {borderBottom: '10px solid #EFF1F7', color:'black'},
             photoList : null
         };
     }
@@ -70,11 +70,17 @@ export default class extends Component {
             <div className="divider">
                 <div className="top">
                     <div className="top-item" style={this.state.nowType === 'Photo'? this.state.activeStyle : this.state.deactiveStyle} 
-                        onClick={this.onClickTopItem.bind(this,'Photo')}><img alt="divider_img" src={require('../resources/icon_photo.png')}/>사진</div>
+                        onClick={this.onClickTopItem.bind(this,'Photo')}>
+                        <img alt="divider_img" src={this.state.nowType ==='Photo' ? require('../resources/icon_photo_on.png') 
+                        : require('../resources/icon_photo_off.png') }/>사진</div>
                     <div className="top-item" style={this.state.nowType === 'Template'? this.state.activeStyle : this.state.deactiveStyle} 
-                        onClick={this.onClickTopItem.bind(this,'Template')}><img alt="divider_img" src={require('../resources/icon_template.png')}/>템플릿</div>
+                        onClick={this.onClickTopItem.bind(this,'Template')}>
+                        <img alt="divider_img" src={this.state.nowType === 'Template' ? require('../resources/icon_template_on.png')
+                        : require('../resources/icon_template_off.png')}/>템플릿</div>
                     <div className="top-item" style={this.state.nowType === 'Sticker'? this.state.activeStyle : this.state.deactiveStyle} 
-                        onClick={this.onClickTopItem.bind(this,'Sticker')}><img alt="divider_img" src={require('../resources/icon_sticker.png')}/>스티커</div>
+                        onClick={this.onClickTopItem.bind(this,'Sticker')}>
+                        <img alt="divider_img" src={this.state.nowType ==='Sticker' ? require('../resources/icon_sticker_on.png') 
+                        : require('../resources/icon_sticker_off.png')}/>스티커</div>
                 </div>
                 <div className="content">
                     {this.props.children}

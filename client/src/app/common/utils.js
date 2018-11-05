@@ -53,7 +53,7 @@ export class HistoryManager{
             return
         if(HistoryManager.pivot === MaxHistorys)
         {
-            HistoryManager.history = [...HistoryManager.history.splice(0,1)]
+            HistoryManager.history.splice(0,1)
             HistoryManager.pivot -= 1
         }
 

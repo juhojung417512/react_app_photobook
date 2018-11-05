@@ -13,6 +13,20 @@ body{
     
 }
 
+.right-bottom{
+    right:-35px;
+    bottom:0;
+}
+.right-bottom2{
+    right:-35px;
+    bottom:35px;
+}
+
+.right-bottom3{
+    right:-35px;
+    bottom: 70px;
+}
+
 .modal-container {
     display: flex; /* Hidden by default */
     position: fixed; /* Stay in place */
@@ -30,7 +44,8 @@ body{
 .preview-frame{
     background-color: white;
     padding: 10px 15px;
-
+    // width:85%;
+    height: 80%;
     .slots{
         z-index: 3;
         .slot{
@@ -58,13 +73,9 @@ body{
                     top:-10px;
                     left:-10px;
                 }
-                .right-bottom{
-                    right:-35px;
-                    bottom:0;
-                }
-                .right-bottom2{
-                    right:-35px;
-                    bottom:35px;
+                .left-top2{
+                    top:-3px;
+                    left:-33px;
                 }
                 .handle{
                     flex:1;
@@ -80,6 +91,7 @@ body{
                     flex:1;
                     .color-opener{
                         display: flex;
+                        position: absolute;
                     }
                 }
                 i{
@@ -160,32 +172,32 @@ body{
             display:flex;
             flex-direction: row;
             flex: 10;
+            background-color: #EFF1F6;
             .paging-button{
                 display: flex;
-                flex: 2 ;
+                flex: 2;
                 align-items: center;
                 background-color: #EFF1F6;
                 justify-content: center;
                 >img{
-                    width: 50%;
+                    width: 30%;
                     height: 15%;
     
                     cursor: pointer;
 
                     &:hover{
-                        background-color: #D4D6DB;
+                        border: 5px solid #E0E2E7;
+                        border-radius: 50%;
                     }
                 }
-                
             }
             .content{
-                flex:10;
+                flex:8;
                 background-color: #EFF1F6;
                 justify-content: center;
                 align-items: center;
                 .slots{
                     z-index: 3;
-                    transform: translate(0,-260px);
                     .slot{
                         position: absolute;
                         .text-box{
@@ -211,13 +223,9 @@ body{
                                 top:-10px;
                                 left:-10px;
                             }
-                            .right-bottom{
-                                right:-35px;
-                                bottom:0;
-                            }
-                            .right-bottom2{
-                                right:-35px;
-                                bottom:35px;
+                            .left-top2{
+                                top:-3px;
+                                left:-33px;
                             }
                             .handle{
                                 flex:1;
@@ -233,6 +241,11 @@ body{
                                 flex:1;
                                 .color-opener{
                                     display: flex;
+                                    .color-picker{
+                                        position: absolute;
+                                        right: -110px;
+                                        top: 0px;
+                                    }
                                 }
                             }
                             i{
@@ -402,7 +415,6 @@ body{
         height: 100vh;
         .top-bar{
             max-height: 110px;
-            padding: 0 20px;
             display: flex;
             flex-direction: row;
             justify-content: center;
@@ -434,36 +446,31 @@ body{
                 align-items: center;
                 color: #6C6C6C;
                 flex:3;
-                font-size:15px;
+                font-size:12px;
                 text-align: center;
+                font-weight:bold;
                 
                 >img{
-                    width:35px;
-                    height:35px;
+                    width:40px;
+                    height:40px;
                     margin : 0 0 10px 0;
                 }
-            }
-
-            .menu-dropdown{
-                margin: 0 10px;
-                color: #6C6C6C;
-                flex:3;
-                font-size:25px;
-                text-align: center;
-                cursor: pointer;
-                &:hover{
-                    background-color: #EBEBEB
-                }
                 .dropdown-list{
-                    display: block;
-                    background-color: #F7F7F7;
+                    width:8%;
+                    height:20%;
+                    flex-direction: column;
                     position: absolute;
+                    top: 100px;
+                    margin: 10px 0;
+                    border: 1px solid lightgray;
+                    background-color: #F7F8FC;
                     cursor: pointer;
-                    right: 438px;
-                    top: 66px;
                     >div{
-                        border: 1px solid black;
-
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        flex : 1;
+                        padding : 5px 0;
                         &:hover{
                             background-color: #EBEBEB
                         }
@@ -485,7 +492,7 @@ body{
                     // flex: 1;
                     // margin : 5px;
                     .top-item{
-                        padding:10px;
+                        padding: 0px 10px;
                         display:flex;
                         flex-direction: column;
                         justify-content: center;
@@ -493,12 +500,12 @@ body{
                         flex:1;
                         font-size:13px;
                         >img{
-                            width:50px;
-                            height:50px;
+                            width:80px;
+                            height:80px;
                         }
                         cursor: pointer;
                         &:hover{
-                            background-color: #EBEBEB;
+                            background-color: #EFF0F6;
                         }
                     }
                 }
@@ -658,13 +665,14 @@ body{
                         >img{
                             width:50px;
                             height:50px;
-    
+                            cursor: pointer;
+                            &:hover{
+                                border: 5px solid #E0E2E7;
+                                border-radius: 50%;
+                            }
                         }
                         
-                        cursor: pointer;
-                        &:hover{
-                            background-color: #EBEBEB
-                        }
+                        
                     }
 
                     .frame{
@@ -706,13 +714,9 @@ body{
                                         top:-10px;
                                         left:-10px;
                                     }
-                                    .right-bottom{
-                                        right:-35px;
-                                        bottom:0;
-                                    }
-                                    .right-bottom2{
-                                        right:-35px;
-                                        bottom:35px;
+                                    .left-top2{
+                                        top:-3px;
+                                        left:-33px;
                                     }
                                     .handle{
                                         flex:1;
@@ -728,12 +732,18 @@ body{
                                         flex:1;
                                         .color-opener{
                                             display: flex;
+                                            .color-picker{
+                                                position: absolute;
+                                                right: -110px;
+                                                top: -110px;
+                                            }
                                         }
                                     }
                                     i{
                                         flex:1;
                                         font-size:20px;
                                         cursor: pointer;
+                                        text-align: center;
                                     }
                                 }
                                 img{

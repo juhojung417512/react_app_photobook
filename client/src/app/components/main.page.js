@@ -21,6 +21,8 @@ import Preview from './preview.comp'
 
 import {
     SetTemaplteIdx,
+    GetTemplateInfo,
+    ResetTemplateInfo,
     GetLoginData,
     CreatePhotobook,
     SortSlot,
@@ -48,13 +50,17 @@ let mapStateToProps = (state) => {
         redo : state.photobook.redo,
         undo : state.photobook.undo,
         pivot : state.photobook.pivot,
-        photoList : state.photobook.photoList
+        photoList : state.photobook.photoList,
+        preview : state.photobook.preview,
+        template : state.photobook.template
     }
 }
 
 let mapDispatchToProps = (dispatch) => {
     return {
         SetTemaplteIdx : (idx) => dispatch(SetTemaplteIdx(idx)),
+        GetTemplateInfo:(id)=>dispatch(GetTemplateInfo(id)),
+        ResetTemplateInfo : ()=>dispatch(ResetTemplateInfo()),
         GetLoginData: () => dispatch(GetLoginData()),
         CreatePhotobook : ()=> dispatch(CreatePhotobook()),
         SortSlot : (type) => dispatch(SortSlot(type)),
@@ -93,7 +99,6 @@ export default class extends Component {
             photoList : [],
             addPhotoList : [],
             templateIds : [],
-            nowTemplateId : null,
             sticker_count : null,
             dividerState : 'Template',
             templates : [],
@@ -107,7 +112,7 @@ export default class extends Component {
         if (!window.getCookie('isLogin'))
             history.replace('/')
         this.setState({
-            templates : [true,true],
+            templates : [null,null],
             templateIds : [null,null],
         })
 
@@ -118,7 +123,6 @@ export default class extends Component {
 
     componentWillReceiveProps(nProps){
         if(this.props.photoList !== nProps.photoList || this.state.addPhotoList.length < nProps.photoList.length){
-            console.log(this.state.addPhotoList)
             this.setState({
                 addPhotoList : [...nProps.photoList, ...this.state.addPhotoList]
             })
@@ -126,13 +130,18 @@ export default class extends Component {
             this.setState({
                 sticker_count : nProps.stickerList.length + 1
             })
+        } else if(this.state.templates[this.state.templateIndex] !== nProps.template){
+            this.state.templates[this.state.templateIndex] = nProps.template
+            this.setState({
+                templates : this.state.templates
+            })
         }
     }
 
     showMenu = (e)=> {
         e.preventDefault();
 
-        this.setState({ showMenu: true, dropdownMenuStyle : {display:"block"}}, () => {
+        this.setState({ showMenu: true, dropdownMenuStyle : {display:"flex"}}, () => {
             document.addEventListener('click', this.closeMenu);
         });
     }
@@ -147,7 +156,7 @@ export default class extends Component {
     showOrder = (e)=>{
         e.preventDefault();
 
-        this.setState({ showOrder: true, dropdownOrderStyle : {display:"block"}}, () => {
+        this.setState({ showOrder: true, dropdownOrderStyle : {display:"flex"}}, () => {
             document.addEventListener('click', this.closeOrder);
         });
     }
@@ -162,7 +171,7 @@ export default class extends Component {
     showSort = (e)=>{
         e.preventDefault();
 
-        this.setState({ showSort: true, dropdownSortStyle : {display:"block"}}, () => {
+        this.setState({ showSort: true, dropdownSortStyle : {display:"flex"}}, () => {
             document.addEventListener('click', this.closeSort);
         });
     }
@@ -208,22 +217,17 @@ export default class extends Component {
         this.props.OrderSlot(type)
     }
 
-    changeTemplate = (idx)=>{
+    changeTemplate = async (idx)=>{
         this.props.SetTemaplteIdx(idx)
         this.props.GetStickers() // sticker api need
         this.props.GetPhotos()
         if(idx >= this.state.templates.length){
-            this.setState({
-                ...this.state,
-                templates : [...this.state.templates,true],
-                templateIds : [...this.state.templateIds,null]
-            })    
+            await this.newTemplate()
         }
 
         this.setState({
             ...this.state,
             templateIndex : idx,
-            nowTemplateId : this.state.templateIds[idx],
             dividerState  : 'Template',
             previewCanvas : this.state.previewCanvas
         })
@@ -241,24 +245,28 @@ export default class extends Component {
 
     setTemplateId = (id)=>{
         this.state.templateIds[this.state.templateIndex] = id
+        this.props.GetTemplateInfo(id)
         this.setState({
             templateIds : this.state.templateIds,
-            nowTemplateId : id
         })
     }
 
-    newTemplate = ()=>{
-        this.setState({
+    newTemplate = async ()=>{
+        await this.setState({
+            templates : [...this.state.templates,null],
+            templateIds : [...this.state.templateIds,null],
             templateIndex : this.state.templateIndex + 1,
-            nowTemplateId : null,
             dividerState  : null
         })
     }
 
     onClickPreview = ()=>{
-        this.setState({
-            isPreview : true
-        })
+        this.props.CallPreview()
+        setTimeout(()=>{
+            this.setState({
+                isPreview : true
+            })
+        }, 1000)
     }
 
     onClickClosePreview = ()=>{
@@ -351,7 +359,7 @@ export default class extends Component {
                     <img alt="top_img" src={require('../resources/top_text.png')}/>글상자
                 </div>
                 <div className={isSlotStyle} onClick={this.props.selectedSlot.length > 0 ? this.showSort : null}>
-                    <img alt="top_img" src={require('../resources/top_layer.png')}/>사진정렬
+                    <img alt="top_img" src={require('../resources/top_layer.png')}/>정렬
                     <div className="dropdown-list zindex-2" style={this.state.dropdownSortStyle}>
                         {SORT_LIST.map((item,idx)=>{
                             return(<div onClick={this.onClickSort.bind(this,item.type)} key={idx}>{item.title}</div>)
@@ -375,7 +383,8 @@ export default class extends Component {
             </div>
 
             <div className="contents">
-                {this.state.isPreview ? <Preview onExit={this.onClickClosePreview} preview={this.state.previewCanvas} /> : <div></div>}
+                {this.state.isPreview ? <Preview onExit={this.onClickClosePreview} preview={this.props.preview}
+                    CreatePhotobook={this.props.CreatePhotobook.bind(this)}/> : <div></div>}
                 <Divider 
                     templateIndex = {this.state.templateIndex}
                     state={this.state.dividerState} setType={(type)=>{this.setState({dividerState: type})}}>
@@ -391,8 +400,8 @@ export default class extends Component {
                     <div className="template-frame" ref="templateFrame" >
                         <div className="frame-button" onClick={this.onClickTemplateMove.bind(this,'prev')}><img alt="frame-button" src={require('../resources/blue_left.png')}/></div>
                         {this.state.templates.map((raw,idx)=>{
-                            return(<Template key={idx} templateIdx={idx} templateId={this.state.nowTemplateId} isVisible={idx === this.state.templateIndex} 
-                                    photoList={this.state.photoList} updatePreview={(template)=>{this.updatePreview(template,idx)}}/>)
+                            return(<Template key={idx} GetTemplateInfo={this.props.GetTemplateInfo.bind(this,)} templateIdx={idx} isVisible={idx === this.state.templateIndex} 
+                                    photoList={this.state.photoList} updatePreview={(template)=>{this.updatePreview(template,idx)}} template={this.state.templates[idx]}/>)
                         })}
                         <div className="frame-button" onClick={this.onClickTemplateMove.bind(this,'next')}><img alt="frame-button" src={require('../resources/blue_right.png')}/></div>
                     </div>

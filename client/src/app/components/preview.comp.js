@@ -38,19 +38,13 @@ export default class extends Component {
 
     componentDidMount(){
         if(this.props.preview !== undefined && this.props.preview !== null && this.props.preview !== this.state.preview){
-            let previewList = []
-            for(var p of this.props.preview){
-                previewList.push(p.cloneNode(true))
-            }
             this.setState({
                 preview : this.props.preview,
-                previewList : previewList
             })
         }
     }
 
     componentWillReceiveProps(nProps){
-        
     }
 
     onClickSend = ()=>{
@@ -74,8 +68,9 @@ export default class extends Component {
     }
 
     render() {
+        console.log('rerender')
         if(eval('this.refs.content'+this.state.previewIdx) !== undefined){
-            eval('this.refs.content'+this.state.previewIdx+'.appendChild(this.state.previewList['+this.state.previewIdx+'])')
+            eval('this.refs.content'+this.state.previewIdx+'.appendChild(this.state.preview['+this.state.previewIdx+'])')
         }
         return (
             <div className="modal-container preview-modal">

@@ -68,6 +68,7 @@ export let DeactiveSlot = actions ( DEACTIVE_SLOT, (type,idx)=>{
 })
 
 export let SortSlot = actions( SORT_SLOT,(type)=>{
+    console.log(type)
     return type
 })
 

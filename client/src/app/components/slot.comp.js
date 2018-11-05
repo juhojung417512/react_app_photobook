@@ -5,6 +5,7 @@ import Draggable from 'react-draggable';
 import Resizable from 're-resizable';
 import { GithubPicker } from 'react-color';
 import { transform2pos } from '../common/utils'
+import { timingSafeEqual } from 'crypto';
 
 @hot(module)
 export default class extends Component {
@@ -21,6 +22,7 @@ export default class extends Component {
             prev_size : null,
             isResize : false,
             isVisible : true,
+            size : null
         };
         this.dragHandlers = {onStart: this.onDragStart, onDrag: this.onDragging, onStop: this.onDragStop};
     }
@@ -30,7 +32,6 @@ export default class extends Component {
     }
 
     componentWillReceiveProps(nProps){
-        console.log(nProps.isVisible)
         if(this.state.isCanvas !== nProps.isCanvas){
             if(nProps.isCanvas === true)
                 this.offClickSlot()
@@ -38,19 +39,25 @@ export default class extends Component {
                 isCanvas : nProps.isCanvas
             })
         } else if(this.state.isVisible !== nProps.isVisible && this.refs.DragContainer !== undefined){
+            this.setState({
+                isVisible : nProps.isVisible
+            })
             let pos = null
             if(nProps.isVisible === false)
                 pos = transform2pos(ReactDOM.findDOMNode(this.refs.DragContainer).style.transform)
             setTimeout(()=>{
-                console.log('pos : ',pos)
-                this.setState({
-                    dragForcePos : pos
-                })
+                this.props.onForecDrag(pos)
+                this.props.onForceResize(this.state.size)
             } , 100)
         } else if(this.state.dragForcePos !== nProps.dragForcePos){
             this.setState({
                 dragForcePos : nProps.dragForcePos
             })
+        } else if(this.state.isClick !== nProps.isPreview){
+            if(nProps.isPreview)
+                this.setState({
+                    isClick : !nProps.isPreview
+                })
         }
     }
 
@@ -121,29 +128,32 @@ export default class extends Component {
     onResizeStop = (w,h)=>{
         this.props.onResizeStop(this.state.prev_size,{width: w, height: h})
         this.setState({
+            size : {width: w, height: h},
             prev_size: null,
             isResize : false
         })
     }
 
     render() {  
-        console.log(this.state.isResize, this.state.dragForcePos) /// resize 시 drag 안되도록..어케하지..                                                                                                                         
+        //console.log(this.state.isResize) /// resize 시 drag 안되도록..어케하지..      
         return (
             <Draggable bounds="body" handle='.handle' {...this.dragHandlers} position={this.state.dragForcePos} disabled={this.state.isResize}>
-                <div ref="DragContainer" className='slot handle' onClick={this.onClickSlot} 
+                <div ref="DragContainer" className='slot' onClick={this.onClickSlot} 
                     style={{zIndex: this.props.orderIndex === undefined || this.props.orderIndex === null ? 1 : this.props.orderIndex}}>
                     {this.state.isClick ? 
                         <div className="slot-box">
-                            <div className="text-div left-top handle"><i className="fas fa-arrows-alt"></i></div>
+                            <div className={this.props.type ==="Textbox" ? "text-div left-top2 handle" : "text-div left-top handle"}>
+                                <i className="fas fa-arrows-alt"></i>
+                            </div>
                             {this.props.isTextBox ? 
                                 <div className="text-toolbox">
                                     {this.state.colorBoxState ? 
-                                        <div>
-                                            <div className="text-div right-bottom" onClick={this.onClickColorClose}><i className="fas fa-times" style={{fontSize:15}}></i></div>
-                                            <GithubPicker onChangeComplete={this.onChangeTextColor} width={'100px'} height={50}/>
+                                        <div className="color-opener">
+                                            <div className="text-div right-bottom3" onClick={this.onClickColorClose}><i className="fas fa-times" style={{fontSize:15}}></i></div>
+                                            <div className="color-picker"><GithubPicker triangle='hide' onChangeComplete={this.onChangeTextColor} width={'100px'} height={50}/></div>
                                         </div>
-                                        : 
-                                        <div className="color-opener text-div" onClick={this.onClickColorOpen}><i className="fas fa-times" style={{fontSize:15}}></i></div>}
+                                        :
+                                        <div className="color-opener text-div right-bottom3" onClick={this.onClickColorOpen}><i className="fas fa-palette" style={{fontSize:15}}></i></div>}
                                 </div> : <div/>}
                             <div className="exit-div text-div right-bottom" onClick={this.offClickSlot}>
                                 <div><i className="fas fa-times" style={{fontSize:15}}></i></div>

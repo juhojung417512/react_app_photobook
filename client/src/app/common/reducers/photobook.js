@@ -67,7 +67,6 @@ export default function photobook(state=initialState, action){
                 stateStore[action.payload] = initialState
             if(state.templateIndex !== null)
                 stateStore[state.templateIndex] = state
-            console.log(stateStore[action.payload].photoList)
             return{
                 ...stateStore[action.payload],
                 templateIndex : action.payload
