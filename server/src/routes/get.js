@@ -21,8 +21,12 @@ router.get('/photos',async (req,res)=>{
 
 router.get('/stickers',async (req,res)=>{
     let sticker_list = await mysql.getStickers()
+    let list = []
+    for(var s of sticker_list){
+        list.push({id : s.id, src: s.src, size: {width: s.width, height: s.height}})
+    }
     return res.json({
-        stickerList : sticker_list.length === 0 ? null : sticker_list
+        stickerList : list.length === 0 ? null : list
     })
 })
 

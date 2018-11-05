@@ -27,6 +27,7 @@ import {
     CreateHistory,
     SetPreview
 } from "../common/actions"
+import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from 'constants';
 
 let mapStateToProps = (state)=>{
     return {
@@ -88,9 +89,12 @@ export default class extends Component {
             undo : null,
             redo : null,
             pivot : 0,
-            photosDragPos : [],
-            stickersDragPos : [],
-            textboxesDragPos : [],
+            photosNowDragPos : [],
+            photosForceDragPos : [],
+            stickersNowDragPos : [],
+            stickersForceDragPos : [],
+            textboxesNowDragPos : [],
+            textboxesForceDragPos : [],
             stickersResize : [],
             photosResize : [],
             textboxesResize : [],
@@ -246,54 +250,71 @@ export default class extends Component {
             })
         }
 
-        else if(nProps.sortStyle !== this.state.sortStyle){
-            console.log(nProps.sortStyle)
-            console.log(this.refs.templateImg.clientWidth)
-            // 새로 만들어야하는데..흠..
-            // translate width : clientwidth, clientheight 에서 slot size 빼야함.
-            let justify = this.state.frameStyle !== null ? this.state.frameStyle.justifyContent : null
-            let align = this.state.frameStyle !== null ? this.state.frameStyle.alignItems : null
+        else if(nProps.sortStyle !== this.state.sortStyle && this.refs.templateImg !== undefined){
+            this.setState({
+                sortStyle : nProps.sortStyle
+            })
+            if(nProps.sortStyle === null)
+                return
+
+            let x = null
+            let y = null
             switch(nProps.sortStyle){
                 case SORT_LIST_TYPE.L : 
-                    justify = 'flex-start'
+                    x = 0
                     break
                 case SORT_LIST_TYPE.R : 
-                    justify = 'flex-end'
+                    x = this.refs.templateImg.clientWidth
                     break
                 case SORT_LIST_TYPE.C_X : 
-                    justify = 'center'
+                    x = this.refs.templateImg.clientWidth / 2
                     break
                 case SORT_LIST_TYPE.T : 
-                    align = 'flex-start'
+                    y = 0
                     break
                 case SORT_LIST_TYPE.B : 
-                    align = 'flex-end'
+                    y = this.refs.templateImg.clientHeight
                     break
                 case SORT_LIST_TYPE.C_Y : 
-                    align = 'center'
+                    y = this.refs.templateImg.clientHeight / 2
                     break
                 default :
                     break
             }
-            this.setState({
-                sortStyle : nProps.sortStyle,
-                frameStyle : {justifyContent : justify, alignItems : align}
-            }, ()=>{
-                for(let i=0;i<=this.props.selectedSlot.length; i++){
-                    switch(this.props.selectedType[i]){
-                        case "Photo" :
-                            this.DragForceSlot(HISTORYS.DRAG_P,this.props.selectedSlot[i], {x: 0, y: 0})
-                            break
-                        case "Sticker": 
-                            this.DragForceSlot(HISTORYS.DRAG_S,this.props.selectedSlot[i], {x: 0, y: 0})
-                            break
-                        case "Textbox":
-                            this.DragForceSlot(HISTORYS.DRAG_T,this.props.selectedSlot[i], {x: 0, y: 0})
-                            break
-                        default : 
-                            break
-                    }
+            
+            for(let i=0;i<=this.props.selectedSlot.length; i++){
+                let posX = null
+                let posY = null
+                let slotPos = null
+                let slotSize = null
+                switch(this.props.selectedType[i]){
+                    case "Photo" :
+                        slotPos = this.state.photosNowDragPos[this.props.selectedSlot[i]]
+                        slotSize = this.state.photosResize[this.props.selectedSlot[i]]
+                        posX = x === null ? slotPos.x : x === 0 ? x : x - slotSize.width
+                        posY = y === null ? slotPos.y : y === 0 ? y : y - slotSize.height
+                        this.DragForceSlot(HISTORYS.DRAG_P,this.props.selectedSlot[i], {x: posX, y: posY})
+                        break
+                    case "Sticker": 
+                        slotPos = this.state.stickersNowDragPos[this.props.selectedSlot[i]]
+                        slotSize = this.state.stickersResize[this.props.selectedSlot[i]]
+                        posX = x === null ? slotPos.x : x === 0 ? x : x - slotSize.width
+                        posY = y === null ? slotPos.y : y === 0 ? y : y - slotSize.height
+                        this.DragForceSlot(HISTORYS.DRAG_S,this.props.selectedSlot[i], {x: posX, y: posY})
+                        break
+                    case "Textbox":
+                        slotPos = this.state.textboxesNowDragPos[this.props.selectedSlot[i]]
+                        slotSize = this.state.textboxesResize[this.props.selectedSlot[i]]
+                        posX = x === null ? slotPos.x : x === 0 ? x : x - slotSize.width
+                        posY = y === null ? slotPos.y : y === 0 ? y : y - slotSize.height
+                        this.DragForceSlot(HISTORYS.DRAG_T,this.props.selectedSlot[i], {x: posX, y: posY})
+                        break
+                    default : 
+                        break
                 }
+            }
+            this.setState({
+                sortStyle : nProps.sortStyle
             })
         }
 
@@ -394,10 +415,14 @@ export default class extends Component {
     }
 
     CreatePreview = ()=>{
-        let preview = eval("this.refs.template"+ this.props.templateIdx+ ".cloneNode(true)")
-        console.log(preview.children[1].src, this.props.templateIdx)
-        preview.style = 'display : flex;'
-        return preview
+        if(eval("this.refs.template"+ this.props.templateIdx) !== undefined){
+            let preview = eval("this.refs.template"+ this.props.templateIdx+ ".cloneNode(true)")
+            preview.style = 'display : flex;'
+            return preview
+        } else {
+            return undefined
+        }
+        
     }
 
     CreatePhotobook = async () =>{
@@ -413,7 +438,8 @@ export default class extends Component {
             if(idx === null){
                 this.setState({
                     photos: [...this.state.photos,{src: data.src ,display : true}],
-                    photosDragPos : [...this.state.photosDragPos,null],
+                    photosForceDragPos : [...this.state.photosForceDragPos,null],
+                    photosNowDragPos : [...this.state.photosNowDragPos, {x : 0, y : 0}],
                     photosResize : [...this.state.photosResize, data.size ? data.size : null],
                     photosOrder : [...this.state.photosOrder,1]
                 },()=>{
@@ -446,8 +472,9 @@ export default class extends Component {
             if(idx === null){
                 this.setState({
                     stickers : [...this.state.stickers, {id : id, src:this.props.stickerList[id-1].src,display:true}],
-                    stickersDragPos : [...this.state.stickersDragPos, null],
-                    stickersResize : [...this.state.stickersResize, null],
+                    stickersForceDragPos : [...this.state.stickersForceDragPos, null],
+                    stickersNowDragPos : [...this.state.stickersNowDragPos, {x : 0, y : 0}],
+                    stickersResize : [...this.state.stickersResize, {width: 100, height: 100 }],
                     stickersOrder : [...this.state.stickersOrder,1]
                 },()=>{
                     this.props.CreateHistory(HISTORYS.C_S,id,this.state.stickers.length-1)
@@ -484,8 +511,9 @@ export default class extends Component {
             this.setState({
                 textboxes : [...this.state.textboxes, {display:true,text : null}],
                 textColor : [...this.state.textColor, 'black'],
-                textboxesDragPos : [...this.state.textboxesDragPos, null],
-                textboxesResize : [...this.state.textboxesResize, null],
+                textboxesForceDragPos : [...this.state.textboxesForceDragPos, null],
+                textboxesNowDragPos : [...this.state.textboxesNowDragPos, {x: 0, y : 0}],
+                textboxesResize : [...this.state.textboxesResize, {width : 100, height: 100}],
                 textboxesOrder : [...this.state.textboxesOrder,1]
             },()=>{
                 this.props.CreateHistory(HISTORYS.C_T,null,this.state.textboxes.length-1)
@@ -518,25 +546,31 @@ export default class extends Component {
             case HISTORYS.DRAG_P:
                 if(this.state.photos[idx].display === false)
                     idx = this.state.photos.length -1
-                this.state.photosDragPos[idx] = pos
+                this.state.photosForceDragPos[idx] = pos
+                this.state.photosNowDragPos[idx] = pos
                 this.setState({
-                    photosDragPos : this.state.photosDragPos
+                    photosForceDragPos : this.state.photosForceDragPos,
+                    photosNowDragPos : this.state.photosNowDragPos
                 })
                 break
             case HISTORYS.DRAG_S: 
                 if(this.state.stickers[idx].display === false)
                     idx = this.state.stickers.length -1
-                this.state.stickersDragPos[idx] = pos
+                this.state.stickersForceDragPos[idx] = pos
+                this.state.stickersNowDragPos[idx] = pos
                 this.setState({
-                    stickersDragPos : this.state.stickersDragPos
+                    stickersForceDragPos : this.state.stickersForceDragPos,
+                    stickersNowDragPos : this.state.stickersNowDragPos
                 })
                 break
             case HISTORYS.DRAG_T : 
                 if(this.state.textboxes[idx].display === false)
                     idx = this.state.textboxes.length -1
-                this.state.textboxesDragPos[idx] = pos
+                this.state.textboxesForceDragPos[idx] = pos
+                this.state.textboxesNowDragPos[idx] = pos
                 this.setState({
-                    textboxesDragPos : this.state.textboxesDragPos
+                    textboxesForceDragPos : this.state.textboxesForceDragPos,
+                    textboxesNowDragPos : this.state.textboxesNowDragPos
                 })
                 break
             default : 
@@ -547,21 +581,21 @@ export default class extends Component {
     onDragStart = (type,idx)=>{
         switch(type){
             case HISTORYS.DRAG_P:
-                this.state.photosDragPos[idx] = null
+                this.state.photosForceDragPos[idx] = null
                 this.setState({
-                    photosDragPos : this.state.photosDragPos
+                    photosForceDragPos : this.state.photosForceDragPos
                 })
                 break
             case HISTORYS.DRAG_S: 
-                this.state.stickersDragPos[idx] = null
+                this.state.stickersForceDragPos[idx] = null
                 this.setState({
-                    stickersDragPos : this.state.stickersDragPos
+                    stickersForceDragPos : this.state.stickersForceDragPos
                 })
                 break
             case HISTORYS.DRAG_T : 
-                this.state.textboxesDragPos[idx] = null
+                this.state.textboxesForceDragPos[idx] = null
                 this.setState({
-                    textboxesDragPos : this.state.textboxesDragPos
+                    textboxesForceDragPos : this.state.textboxesForceDragPos
                 })
                 break
             default : 
@@ -577,12 +611,24 @@ export default class extends Component {
     onDragStop = (type,idx,prev,next)=>{
         switch(type){
             case HISTORYS.DRAG_P:
+                this.state.photosNowDragPos[idx] = next
+                this.setState({
+                    photosNowDragPos : this.state.photosNowDragPos
+                })
                 this.props.DragPhoto(idx,prev,next)
                 break
             case HISTORYS.DRAG_S: 
+                this.state.stickersNowDragPos[idx] = next
+                this.setState({
+                    stickersNowDragPos : this.state.stickersNowDragPos
+                })
                 this.props.DragSticker(idx,prev,next)
                 break
             case HISTORYS.DRAG_T : 
+                this.state.textboxesNowDragPos[idx] = next
+                this.setState({
+                    textboxesNowDragPos : this.state.textboxesNowDragPos
+                })
                 this.props.DragTextBox(idx,prev,next)
                 break
             default : 
@@ -647,20 +693,31 @@ export default class extends Component {
         switch(type){
             case HISTORYS.R_P:
                 this.props.ResizePhoto(idx,prev,next)
+                this.state.photosResize[idx] = next
+                this.setState({
+                    photosResize : this.state.photosResize
+                })
                 break
             case HISTORYS.R_S: 
                 this.props.ResizeSticker(idx,prev,next)
+                this.state.stickersResize[idx] = next
+                this.setState({
+                    stickersResize : this.state.stickersResize
+                })
                 break
             case HISTORYS.R_T : 
                 this.props.ResizeTextBox(idx,prev,next)
+                this.state.textboxesResize[idx] = next
+                this.setState({
+                    textboxesResize : this.state.textboxesResize
+                })
                 break
             default : 
                 break
         }
     }
 
-    render() {
-        //console.log(this.props.templateIdx, this.props.isVisible, this.props.isPreview)
+    render() { //가로가운데 세로가운데 이상;;
         if(this.props.template !== null)
             return (
                 <div className="frame" ref={`template${this.props.templateIdx}`} style={{
@@ -675,8 +732,8 @@ export default class extends Component {
                                 return
                             return(
                                 <Slot key={idx} DeleteSlot={()=>{this.DeletePhoto(item.id,idx)}}
-                                    dragForcePos={this.state.photosDragPos[idx]} onDragStart={()=>{this.onDragStart(HISTORYS.DRAG_P,idx)}}
-                                    onForecDrag={(pos)=>{this.DragForceSlot(HISTORYS.DRAG_P,idx,pos)}}
+                                    dragForcePos={this.state.photosForceDragPos[idx]} onDragStart={()=>{this.onDragStart(HISTORYS.DRAG_P,idx)}}
+                                    onForceDrag={(pos)=>{this.DragForceSlot(HISTORYS.DRAG_P,idx,pos)}}
                                     onDragStop={(prev,next)=>{this.onDragStop(HISTORYS.DRAG_P,idx,prev,next)}}
                                     onForceResize={(size)=>{this.ResizeForceSlot(HISTORYS.R_P,idx,size)}}
                                     resizeForceSize={this.state.photosResize[idx]} onResizeStart={()=>{this.onResizeStart(HISTORYS.R_P,idx)}} 
@@ -695,7 +752,7 @@ export default class extends Component {
                                 return 
                             return (
                                 <Slot key={idx} DeleteSlot={()=>{this.DeleteSticker(item.id,idx)}}
-                                    dragForcePos={this.state.stickersDragPos[idx]} onDragStart={()=>{this.onDragStart(HISTORYS.DRAG_S,idx)}}
+                                    dragForcePos={this.state.stickersForceDragPos[idx]} onDragStart={()=>{this.onDragStart(HISTORYS.DRAG_S,idx)}}
                                     onForecDrag={(pos)=>{this.DragForceSlot(HISTORYS.DRAG_S,idx,pos)}}
                                     onDragStop={(prev,next)=>{this.onDragStop(HISTORYS.DRAG_S,idx,prev,next)}}
                                     onForceResize={(size)=>{this.ResizeForceSlot(HISTORYS.R_S,idx,size)}}
@@ -716,7 +773,7 @@ export default class extends Component {
                             return (
                                 <Slot key={idx} defaultWidth={100} defaultHeight={100} isTextBox={true} ChangeTextColor={(color)=>{this.ChangeTextColor(idx,color)}}
                                     DeleteSlot={()=>{this.DeleteTextbox(true,idx)}} 
-                                    dragForcePos={this.state.textboxesDragPos[idx]} onDragStart={()=>{this.onDragStart(HISTORYS.DRAG_T,idx)}}
+                                    dragForcePos={this.state.textboxesForceDragPos[idx]} onDragStart={()=>{this.onDragStart(HISTORYS.DRAG_T,idx)}}
                                     onForecDrag={(pos)=>{this.DragForceSlot(HISTORYS.DRAG_T,idx,pos)}}
                                     onDragStop={(prev,next)=>{this.onDragStop(HISTORYS.DRAG_T,idx,prev,next)}}
                                     onForceResize={(size)=>{this.ResizeForceSlot(HISTORYS.R_T,idx,size)}}

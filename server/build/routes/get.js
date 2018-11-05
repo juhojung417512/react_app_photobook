@@ -57,8 +57,34 @@ router.get('/photos', async function (req, res) {
 
 router.get('/stickers', async function (req, res) {
     var sticker_list = await _sqlmgr2.default.getStickers();
+    var list = [];
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
+
+    try {
+        for (var _iterator2 = sticker_list[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var s = _step2.value;
+
+            list.push({ id: s.id, src: s.src, size: { width: s.width, height: s.height } });
+        }
+    } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                _iterator2.return();
+            }
+        } finally {
+            if (_didIteratorError2) {
+                throw _iteratorError2;
+            }
+        }
+    }
+
     return res.json({
-        stickerList: sticker_list.length === 0 ? null : sticker_list
+        stickerList: list.length === 0 ? null : list
     });
 });
 

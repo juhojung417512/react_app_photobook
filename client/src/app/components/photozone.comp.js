@@ -69,7 +69,7 @@ export default class extends Component {
         return (
             <div className="tools">
                 <div className="photo-zone"> 
-                    <Photodnd count={this.state.photoList.length +1} createPhoto={(src,size)=>{this.props.CreatePhoto(src,size)}} // this.props.createphoto 
+                    <Photodnd count={this.state.photoList.length +1} createPhoto={(src,size)=>{this.props.CreatePhoto(src,size)}}
                         photoList={this.state.photoList}/>
                 </div>
                 <div className="photo-upload">

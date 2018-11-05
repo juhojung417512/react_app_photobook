@@ -46,7 +46,7 @@ export default class extends Component {
             if(nProps.isVisible === false)
                 pos = transform2pos(ReactDOM.findDOMNode(this.refs.DragContainer).style.transform)
             setTimeout(()=>{
-                this.props.onForecDrag(pos)
+                this.props.onForceDrag(pos)
                 this.props.onForceResize(this.state.size)
             } , 100)
         } else if(this.state.dragForcePos !== nProps.dragForcePos){
@@ -135,7 +135,6 @@ export default class extends Component {
     }
 
     render() {  
-        //console.log(this.state.isResize) /// resize 시 drag 안되도록..어케하지..      
         return (
             <Draggable bounds="body" handle='.handle' {...this.dragHandlers} position={this.state.dragForcePos} disabled={this.state.isResize}>
                 <div ref="DragContainer" className='slot' onClick={this.onClickSlot} 
