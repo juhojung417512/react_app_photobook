@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 
 import {html2zip, elem2canvas} from '../common/utils'
 import Slot from './slot.comp'
-import {HISTORYS, ORDER_LIST_TYPE, SORT_LIST_TYPE} from '../common/constants'
+import {HISTORYS, ORDER_LIST_TYPE, SORT_LIST_TYPE, PreviewDivideValue} from '../common/constants'
 
 import { 
     
@@ -27,7 +27,6 @@ import {
     CreateHistory,
     SetPreview
 } from "../common/actions"
-import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from 'constants';
 
 let mapStateToProps = (state)=>{
     return {
@@ -405,7 +404,8 @@ export default class extends Component {
             this.setState({
                 previewTime : false
             })
-            this.props.updatePreview(eval("this.refs.template"+ this.props.templateIdx))
+            let t = eval("this.refs.template"+ this.props.templateIdx)
+            this.props.updatePreview(eval("this.refs.template"+ this.props.templateIdx),`translate(0, -${this.refs.templateImg.clientHeight / 2 * PreviewDivideValue}px)`)
             setTimeout(()=>{
                 this.setState({
                     previewTime : true
@@ -418,6 +418,10 @@ export default class extends Component {
         if(eval("this.refs.template"+ this.props.templateIdx) !== undefined){
             let preview = eval("this.refs.template"+ this.props.templateIdx+ ".cloneNode(true)")
             preview.style = 'display : flex;'
+            preview.classList.add('preview-frame')
+            preview.children[0].style.transform = ''
+            preview.children[1].style.width = `${this.refs.templateImg.clientWidth}px`
+            preview.children[1].style.height = `${this.refs.templateImg.clientHeight}px`
             return preview
         } else {
             return undefined
@@ -717,7 +721,7 @@ export default class extends Component {
         }
     }
 
-    render() { //가로가운데 세로가운데 이상;;
+    render() {
         if(this.props.template !== null)
             return (
                 <div className="frame" ref={`template${this.props.templateIdx}`} style={{
@@ -726,7 +730,7 @@ export default class extends Component {
                         alignItems: this.state.frameStyle !== null ? this.state.frameStyle.alignItems : 'center',
                         display: this.props.isVisible === false && this.props.isPreview === false ? 'none' : 'flex'
                     }}>
-                    <div className="slots">
+                    <div className="slots" style={this.refs.templateImg !== undefined ? {transform : `translate(0, -${this.refs.templateImg.clientHeight / 2}px)`} : null}>
                         {this.state.photos.map((item,idx)=>{
                             if(item.display === false)
                                 return
@@ -753,7 +757,7 @@ export default class extends Component {
                             return (
                                 <Slot key={idx} DeleteSlot={()=>{this.DeleteSticker(item.id,idx)}}
                                     dragForcePos={this.state.stickersForceDragPos[idx]} onDragStart={()=>{this.onDragStart(HISTORYS.DRAG_S,idx)}}
-                                    onForecDrag={(pos)=>{this.DragForceSlot(HISTORYS.DRAG_S,idx,pos)}}
+                                    onForceDrag={(pos)=>{this.DragForceSlot(HISTORYS.DRAG_S,idx,pos)}}
                                     onDragStop={(prev,next)=>{this.onDragStop(HISTORYS.DRAG_S,idx,prev,next)}}
                                     onForceResize={(size)=>{this.ResizeForceSlot(HISTORYS.R_S,idx,size)}}
                                     resizeForceSize={this.state.stickersResize[idx]} onResizeStart={()=>{this.onResizeStart(HISTORYS.R_S,idx)}} 
@@ -774,7 +778,7 @@ export default class extends Component {
                                 <Slot key={idx} defaultWidth={100} defaultHeight={100} isTextBox={true} ChangeTextColor={(color)=>{this.ChangeTextColor(idx,color)}}
                                     DeleteSlot={()=>{this.DeleteTextbox(true,idx)}} 
                                     dragForcePos={this.state.textboxesForceDragPos[idx]} onDragStart={()=>{this.onDragStart(HISTORYS.DRAG_T,idx)}}
-                                    onForecDrag={(pos)=>{this.DragForceSlot(HISTORYS.DRAG_T,idx,pos)}}
+                                    onForceDrag={(pos)=>{this.DragForceSlot(HISTORYS.DRAG_T,idx,pos)}}
                                     onDragStop={(prev,next)=>{this.onDragStop(HISTORYS.DRAG_T,idx,prev,next)}}
                                     onForceResize={(size)=>{this.ResizeForceSlot(HISTORYS.R_T,idx,size)}}
                                     resizeForceSize={this.state.textboxesResize[idx]} onResizeStart={()=>{this.onResizeStart(HISTORYS.R_T,idx)}} 

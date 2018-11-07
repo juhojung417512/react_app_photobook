@@ -1,3 +1,4 @@
+export const PreviewDivideValue = 0.25
 export const ItemTypes = {
   FOLDER: 'floder',
   PHOTO : 'photo'

@@ -70,7 +70,8 @@ export default class extends Component {
             <div className="tools">
                 <div className="photo-zone"> 
                     <Photodnd count={this.state.photoList.length +1} createPhoto={(src,size)=>{this.props.CreatePhoto(src,size)}}
-                        photoList={this.state.photoList}/>
+                        photoList={this.state.photoList} isTemplate={this.props.isTemplate}
+                        frameBox={this.props.frameBox}/>
                 </div>
                 <div className="photo-upload">
                     <button onClick={this.onClickLoadPhoto}>사진 업로드 하기</button>

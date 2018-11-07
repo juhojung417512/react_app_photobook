@@ -68,8 +68,7 @@ export default class extends Component {
     }
 
     render() {
-        console.log('rerender')
-        if(eval('this.refs.content'+this.state.previewIdx) !== undefined){
+        if(eval('this.refs.content'+this.state.previewIdx) !== undefined && eval('this.refs.content'+this.state.previewIdx).children.length === 0){
             eval('this.refs.content'+this.state.previewIdx+'.appendChild(this.state.preview['+this.state.previewIdx+'])')
         }
         return (

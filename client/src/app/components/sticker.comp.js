@@ -17,6 +17,7 @@ export default class extends Component {
         this.state={
             folderPosition : [0,0],
             targetId : null,
+            frameBox : undefined,
         };
     }
 
@@ -25,7 +26,13 @@ export default class extends Component {
             folderPosition : [x,y]
         })
     }
-    
+    componentWillReceiveProps(nProps){
+        if(this.state.frameBox !== nProps.frameBox){
+            this.setState({
+                frameBox : nProps.frameBox
+            })
+        }
+    }
     componentDidMount() {
         f_system.init().setObserver(this.observer)
     }
@@ -39,10 +46,19 @@ export default class extends Component {
     renderSquare(i) {
         const x = i % this.props.count;
         const y = Math.floor(i / this.props.count);
-        if(this.props.count-1 === i)
+        if(this.props.count-1 === i && this.props.isTemplate && this.state.frameBox !== undefined)
         {
+            let rect = this.state.frameBox.getBoundingClientRect()
+            let style = {
+                position : 'absolute',
+                top : `${rect.top}px`,
+                left : `${rect.left}px`,
+                width : `${rect.width}px`,
+                height : `${rect.height}px`,
+                zIndex : 1
+            }
             return (
-                <div key={i} className={"folder-background"} style={{position:"absolute",right:120,bottom:163,width:"59%",height:"62%", zIndex:1}}>
+                <div key={i} className={"folder-background"} style={style}>
                     <Board x={x} y={y} isTemplate={true}>
                         {this.renderPiece(x, y, i)}
                     </Board>
