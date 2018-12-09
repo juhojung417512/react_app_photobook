@@ -52,9 +52,16 @@ router.post("/upload/image", upload, function (req, res) {
     return res.json({ src: filename, size: { width: 300, height: 300 } });
 });
 
+router.post("/photobook/save", function (req, res) {
+    var data = req;
+    console.log(data);
+    return true;
+});
+
 router.post("/upload/photobook", function (req, res) {
     var imageData = req;
     console.log(imageData);
+    return true;
 });
 
 router.post('/login', async function (req, res) {

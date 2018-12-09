@@ -1,0 +1,155 @@
+.new-photobook-container , .load-photobook-container{
+    justify-content: center;
+    align-items: center;
+    z-index : 99;
+    .loading-square{
+        width : 100%;
+        padding : 0;
+        margin : 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color : white;
+        flex-direction: column;
+        .loading-spin{
+            border: dashed 5px white;
+        }
+        .loading-txt{
+            margin-top : 20px;
+        }
+    }
+    .container{
+        width : 70%;
+        min-height: 70%;
+        flex-direction: column;
+        align-items: center;
+        display: flex;
+        background-color: white;
+        padding : 20px;
+        box-shadow: 0 30px 45px 0 rgba(3, 4, 1, 0.2);
+        border : 0.2px solid;
+        border-radius: 10px;
+        .title{
+            padding : 10px 0 0 20px;
+            width : 100%;
+            flex : 1;
+            color : #66C4DD;
+            font-weight: bold;
+            font-size : 15px;
+        }
+        .content-container{
+            flex : 8;
+            width : 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color : #F0F2F5;
+            .name-container , .path-container{
+                display: flex;
+                width: 100%;
+                justify-content: center;
+                align-items: center;
+                margin: 40px 0 20px 0;
+                font-weight: bold;
+                .gray{
+                    background-color: 97989A
+                }
+                .text{
+                    color : #97989A;
+                    font-size : 16px;
+                    padding: 0 10px;
+                }
+                .input{
+                    min-width: 550px;
+                    min-height: 40px;
+                    border-radius: 20px;
+                    border : 1px solid white;
+                    font-size: 16px;
+                    padding-left: 20px;
+                }
+                .confirm-btn{
+                    position: relative;
+                    right : 70px;
+                    background-color: #62CBF0;
+                    color : white;
+                    min-height : 45px;
+                    min-width: 88px;
+                    text-align: center;
+                    line-height: 45px;
+                    border : 1px solid #62CBF0;
+                    border-radius: 20px;
+                }
+            }
+            .path-container{
+                margin-top : 0px;
+                padding-right: 24px;
+                padding-left : 22px;
+                .path{
+                    min-width: 550px;
+                    min-height: 44px;
+                    border-radius: 20px;
+                    border : 1px solid white;
+                    font-size: 16px;
+                    padding-left: 20px;
+                    background-color: white;
+                }
+            }
+            .photobook-container{
+                width: 76%;
+                min-height: 380px;
+                background-color: white;
+                border : 1px solid white;
+                border-radius: 20px;
+                display: flex;
+                flex-flow : wrap;
+                .item{
+                    width : 100px;
+                    height : 100px;
+                    margin : 15px;
+                }
+                .selected{
+                    border : 1px solid #62CBF0;
+                    border-radius: 5px;
+                }
+                .line-break{
+                    width : 100%;
+                }
+            }
+            .newpb-btns{
+                display: flex;
+                width : 100%;
+                margin-top : 10px;
+                justify-content: flex-end;
+                .confirm-box , .cancel-box{
+                    padding : 5px;
+                    border : 1px solid #F0F2F4;
+                    border-radius : 10px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    cursor: pointer;
+                    &:hover{
+                        background-color: #C7CBCB;
+                        color: #C7CBCB;
+                    }
+                    >img{
+                        max-width: 100px;
+                    }
+                }
+                .cancel-box{
+                    margin-right: 12%;
+                }
+            }
+        }
+    }
+}
+.load-photobook-container{
+    .container{
+        .content-container{
+            .photobook-container{
+                min-height: 530px;
+                margin-top : 10px;
+            }
+        }
+    }
+}

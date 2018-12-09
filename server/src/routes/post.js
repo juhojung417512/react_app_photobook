@@ -30,9 +30,16 @@ router.post("/upload/image",upload,(req,res)=>{
     return res.json({src: filename, size : {width : 300, height : 300}})
 })
 
+router.post("/photobook/save",(req,res)=>{
+    let data = req
+    console.log(data)
+    return true
+})
+
 router.post("/upload/photobook",(req,res)=>{
     let imageData = req
     console.log(imageData)
+    return true
 })
 
 router.post('/login', async (req, res) => {

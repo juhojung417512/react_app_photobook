@@ -18,6 +18,8 @@ import Divider from './divider.comp'
 import { PHOTOBOOK_LIST ,SORT_LIST, ORDER_LIST, PreviewDivideValue} from '../common/constants'
 import {HistoryManager, elem2canvas} from '../common/utils'
 import Preview from './preview.comp'
+import NewPhotobookComp from './newphotobook.comp'
+import LoadPhotobookComp from './loadphotobook.comp'
 
 import {
     SetTemaplteIdx,
@@ -33,7 +35,13 @@ import {
     UndoHistory,
     RedoHistory,
     CreateTextBox,
-    CallPreview
+    CallPreview,
+    GetPhotobookList,
+    NewPhotobook,
+    LoadPhotobook,
+    SavePhotobook,
+    RefreshAllData,
+    GetAllData
 } from "../common/actions"
 import { timingSafeEqual } from 'crypto';
 
@@ -52,12 +60,18 @@ let mapStateToProps = (state) => {
         pivot : state.photobook.pivot,
         photoList : state.photobook.photoList,
         preview : state.photobook.preview,
-        template : state.photobook.template
+        template : state.photobook.template,
+        photobookList : state.photobook.photobookList,
+        allData : state.photobook.allData
     }
 }
 
 let mapDispatchToProps = (dispatch) => {
     return {
+        GetPhotobookList : () => dispatch(GetPhotobookList()),
+        NewPhotobook : () => dispatch(NewPhotobook()),
+        LoadPhotobook : (id) => dispatch(LoadPhotobook(id)),
+        SavePhotobook : (id) => dispatch(SavePhotobook(id)),
         SetTemaplteIdx : (idx) => dispatch(SetTemaplteIdx(idx)),
         GetTemplateInfo:(id)=>dispatch(GetTemplateInfo(id)),
         ResetTemplateInfo : ()=>dispatch(ResetTemplateInfo()),
@@ -66,24 +80,16 @@ let mapDispatchToProps = (dispatch) => {
         SortSlot : (type) => dispatch(SortSlot(type)),
         OrderSlot : (type) => dispatch(OrderSlot(type)),
         GetPhotos : ()=>dispatch(GetPhotos()),
-        CreateSticker : (idx)=> dispatch(CreateSticker(idx)),
+        CreateSticker : (id,idx)=> dispatch(CreateSticker(id,idx)),
         GetStickers : ()=> dispatch(GetStickers()),
         UndoHistory : ()=>dispatch(UndoHistory()),
         RedoHistory : ()=>dispatch(RedoHistory()),
         CreateTextBox : ()=>dispatch(CreateTextBox()),
-        CallPreview : ()=>dispatch(CallPreview())
+        CallPreview : ()=>dispatch(CallPreview()),
+        RefreshAllData : ()=>dispatch(RefreshAllData()),
+        GetAllData : ()=>dispatch(GetAllData())
     }
 }
-/* 2018-10-17 wed photobook manage delete.
-<div className="menu-dropdown right-border click" onClick={this.showMenu}>
-    포토북 관리
-    <div className="dropdown-list zindex-2" style={this.state.dropdownMenuStyle}>
-        {PHOTOBOOK_LIST.map((item,idx)=>{
-            return(<div onClick={this.onClickDropdownItem.bind(this,item.type)} key={idx}>{item.title}</div>)
-        })}
-    </div>
-</div>
-*/
 
 @hot(module)
 @connect(mapStateToProps, mapDispatchToProps)
@@ -105,7 +111,12 @@ export default class extends Component {
             templateIndex : 0,
             isPreview : false,
             previewCanvas : [],
-            previewWidth : null
+            previewWidth : null,
+            isTemplateView : false, // template preview flag
+            isNewPhotobook : false, // new photo book flag
+            isLoadPhotobook : false, // new load book flag
+            allData : null,
+            photobookList : null
         };
     }
 
@@ -120,6 +131,7 @@ export default class extends Component {
         this.props.SetTemaplteIdx(0)
         this.props.GetStickers() // sticker api need
         this.props.GetPhotos()
+        this.props.GetPhotobookList()
     }
 
     componentWillReceiveProps(nProps){
@@ -127,14 +139,27 @@ export default class extends Component {
             this.setState({
                 addPhotoList : [...nProps.photoList, ...this.state.addPhotoList]
             })
-        } else if(this.state.sticker_count !== nProps.stickerList.length + 1){
+        } 
+        if(nProps.stickerList !== null && this.state.sticker_count !== nProps.stickerList.length + 1){
             this.setState({
                 sticker_count : nProps.stickerList.length + 1
             })
-        } else if(this.state.templates[this.state.templateIndex] !== nProps.template){
+        }
+        if(this.state.templates[this.state.templateIndex] !== nProps.template){
             this.state.templates[this.state.templateIndex] = nProps.template
             this.setState({
                 templates : this.state.templates
+            })
+        }
+        if(this.state.allData !== nProps.allData){
+            this.props.RefreshAllData()
+            this.setState({
+                allData : nProps.allData
+            })
+        }
+        if(this.state.photobookList !== nProps.photobookList){
+            this.setState({
+                photobookList : nProps.photobookList
             })
         }
     }
@@ -182,20 +207,6 @@ export default class extends Component {
             this.setState({ showSort : false, dropdownSortStyle : {display:"none"}}, () => {
                 document.removeEventListener('click', this.closeSort);
             });
-    }
-
-    onClickDropdownItem = (type)=>{
-        //popup display on
-        switch(type){
-            case "send" :
-                this.props.CreatePhotobook()
-                break
-            case "delete":
-            case "rename":
-            case "move":
-            default : 
-                break
-        }
     }
 
     onClickUndo = ()=>{
@@ -307,49 +318,73 @@ export default class extends Component {
             previewWidth : this.refs.frameBox.clientWidth * PreviewDivideValue
         })
     }
-    //     elem2canvas(template).then((canvas)=>{
-    //         if(this.state.previewCanvas[idx] !== undefined){
-    //             let img = new Image();
-    //             let ctx = this.state.previewCanvas[idx]
-    //             img.src = canvas.toDataURL()
-    //             img.onload = ()=>{
-    //                 ctx.getContext('2d').drawImage(img,ctx.width / 2 - img.width / 2, ctx.height / 2 - img.height / 2)
-    //                 this.state.previewCanvas[idx] = ctx
-    //                 this.setState({
-    //                     previewCanvas : this.state.previewCanvas
-    //                 })
-    //             }
-    //         } else{
-    //             let child = this.refs.templatePreviews.appendChild(canvas)
-    //             child.addEventListener('click',()=>{
-    //                 this.onClickCanvas(idx)
-    //             })
-    //             this.setState({
-    //                 previewCanvas : [...this.state.previewCanvas, child]
-    //             })
-    //         }
-    //     })
-    // }
 
     onClickCanvas = (idx) =>{
         if(this.state.templateIndex !== idx)
             this.changeTemplate(idx)
     }
 
+    onClickNPComp = (flag) =>{
+        if(flag){
+            this.props.NewPhotobook()
+        } else{
+            this.setState({
+                isNewPhotobook : false
+            })
+        }
+    }
+
+    onClickLPComp = (flag) =>{
+        if(flag){
+            this.props.NewPhotobook()
+        } else{
+            this.setState({
+                isLoadPhotobook : false
+            })
+        }
+    }
+
+    onClickNew = ()=>{
+        if(!this.state.isNewPhotobook)
+            this.setState({
+                isNewPhotobook : true
+            })
+    }
+
+    onClickLoad = ()=>{
+        if(!this.state.isLoadPhotobook)
+            this.setState({
+                isLoadPhotobook : true
+            })
+    }
+
     render() {
-        // template is not open
         let undoStyle = HistoryManager.init().CheckUndo() === true ? "menu-txt right-border click" : "menu-txt right-border"
         let redoStyle = HistoryManager.init().CheckRedo() === true ? "menu-txt right-border click" : "menu-txt right-border"
         let isSlotStyle = this.props.selectedSlot.length > 0 ? "menu-txt right-border click" : "menu-txt right-border"
+        
         return ( <div className="main-page transition-item">
+            {this.state.isNewPhotobook && 
+                <NewPhotobookComp 
+                    photobookList={this.state.photobookList} 
+                    onConfirm={()=>this.onClickNPComp(true)} 
+                    onQuit={()=>this.onClickNPComp(false)}
+                />}
+            {this.state.isLoadPhotobook &&
+                <LoadPhotobookComp
+                    photobookList={this.state.photobookList}
+                    onConfirm={(id)=>this.props.LoadPhotobook(id)}
+                    onQuit={()=>this.onClickLPComp(false)}
+                />}
+
             <div className="top-bar">
-                <div className="menu-txt right-border click">
+                <div className="menu-txt right-border click" onClick={this.onClickNew}>
                     <img alt="top_img" src={require('../resources/top_newphotobook.png')}/>새 포토북
                 </div>
-                <div className="menu-txt right-border click">
+                <div className="menu-txt right-border click" onClick={HistoryManager.init().CheckUndo() === true ? this.props.SavePhotobook : null}>
                     <img alt="top_img" src={require('../resources/top_save.png')}/>저장
                 </div>
-                <div className="menu-txt right-border click">
+                <div className="menu-txt right-border click" onClick={this.onClickLoad}>
                     <img alt="top_img" src={require('../resources/top_load.png')}/>불러오기
                 </div>
                 <div className={undoStyle} onClick={HistoryManager.init().CheckUndo() === true ? this.onClickUndo : null}>
@@ -392,13 +427,27 @@ export default class extends Component {
                     templateIndex = {this.state.templateIndex}
                     state={this.state.dividerState} setType={(type)=>{this.setState({dividerState: type})}}>
                     
-                    {this.state.dividerState === 'Template' ? <Templatezone setTemplate={(templateId)=>{this.setTemplateId(templateId)}} templateIndex={this.state.templateIndex}/>
-                    : this.state.dividerState === 'Photo' ? <Photozone photoList={this.state.addPhotoList} setPhoto={(photo)=>{this.setState({photoList : [...this.state.photoList, photo]})}}
-                    addPhoto={(photo)=>{this.setState({addPhotoList : [...this.state.addPhotoList, photo]})}} isTemplate={this.state.templates[this.state.templateIndex] !== null}
-                    frameBox={this.refs.frameBox}/>
-                    : this.state.dividerState === 'Sticker' ? <Sticker count={this.state.sticker_count} createSticker={(idx)=>{this.props.CreateSticker(idx)}} 
-                    stickerList={this.props.stickerList} isTemplate={this.state.templates[this.state.templateIndex] !== null}
-                    frameBox={this.refs.frameBox}/> 
+                    {this.state.dividerState === 'Template' ? 
+                        <Templatezone 
+                            setTemplate={(templateId)=>{this.setTemplateId(templateId)}} 
+                            templateIndex={this.state.templateIndex}
+                        />
+                    : this.state.dividerState === 'Photo' ? 
+                        <Photozone 
+                            photoList={this.state.addPhotoList} 
+                            setPhoto={(photo)=>{this.setState({photoList : [...this.state.photoList, photo]})}}
+                            addPhoto={(photo)=>{this.setState({addPhotoList : [...this.state.addPhotoList, photo]})}} 
+                            isTemplate={this.state.templates[this.state.templateIndex] !== null}
+                            frameBox={this.refs.frameBox}
+                            />
+                    : this.state.dividerState === 'Sticker' ? 
+                        <Sticker 
+                            count={this.state.sticker_count} 
+                            createSticker={(id,idx)=>{this.props.CreateSticker(id,idx)}} 
+                            stickerList={this.props.stickerList} 
+                            isTemplate={this.state.templates[this.state.templateIndex] !== null}
+                            frameBox={this.refs.frameBox}
+                            /> 
                     : null }
                 </Divider>
                 <div className="template-page">
@@ -406,19 +455,28 @@ export default class extends Component {
                         <div className="frame-button" onClick={this.onClickTemplateMove.bind(this,'prev')}><img alt="frame-button" src={require('../resources/blue_left.png')}/></div>
                         <div className="frame-box" ref="frameBox">
                             {this.state.templates.map((raw,idx)=>{
-                                return(<Template key={idx} GetTemplateInfo={this.props.GetTemplateInfo.bind(this,)} templateIdx={idx} isVisible={idx === this.state.templateIndex} 
-                                        photoList={this.state.photoList} updatePreview={(template,style)=>{this.updatePreview(template,idx,style)}} template={this.state.templates[idx]}/>)
+                                return(<Template 
+                                        key={idx} 
+                                        GetTemplateInfo={this.props.GetTemplateInfo.bind(this)}
+                                        templateIdx={idx}
+                                        isVisible={idx === this.state.templateIndex}
+                                        photoList={this.state.photoList} 
+                                        updatePreview={(template,style)=>{this.updatePreview(template,idx,style)}} 
+                                        template={this.state.templates[idx]}
+                                    />)
                             })}
                         </div>
                         <div className="frame-button" onClick={this.onClickTemplateMove.bind(this,'next')}><img alt="frame-button" src={require('../resources/blue_right.png')}/></div>
                     </div>
                     <div className="paging">
                         <div className="paging-button"><img draggable={false} alt="paging-button" src={require('../resources/bottom_left.png')}/></div>
+                        {this.state.isTemplateView ? <div className="template-pages"></div> : 
                         <div ref="templatePreviews" className="template-pages">
                             {this.state.templates.map((raw,idx)=>{
                                 return(<div key={idx} ref={`previewBox${idx}`} className="preview-box" style={{flex: `0 0 ${this.state.previewWidth}px`}}></div>)
                             })}
                         </div>
+                        }
                         <div className="paging-button"><img draggable={false} alt="paging-button" src={require('../resources/bottom_right.png')}/></div>
                     </div>
                 </div>

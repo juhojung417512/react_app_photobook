@@ -1,6 +1,6 @@
 import html2canvas from 'html2canvas'
 import jszip from 'jszip'
-import {HISTORYS,MaxHistorys} from './constants'
+import {HISTORYS,MaxHistorys , ORDER_LIST_TYPE, SORT_LIST_TYPE} from './constants'
 
 export async function elem2canvas(content,...args){
     return await html2canvas(content, {useCORS: true, logging: false, ...args[0]})
@@ -27,6 +27,42 @@ export function transform2pos(transform){
     return {x: x, y: y}
 }
 
+export function OrderSlots(orderStyle,orderObj,maxOrder){
+    switch(orderStyle){
+        case ORDER_LIST_TYPE.P : 
+            orderObj += 1
+            if(maxOrder < orderObj)
+                maxOrder = orderObj
+            break
+        case ORDER_LIST_TYPE.M : 
+            if(orderObj === 1)
+                break
+            orderObj -= 1
+            break
+        case ORDER_LIST_TYPE.F : 
+            orderObj = maxOrder + 1
+            break
+        case ORDER_LIST_TYPE.B : 
+            orderObj = 1
+            break
+        default :
+            break
+    }
+    return {
+        orderObj : orderObj, maxOrder : maxOrder
+    }
+}
+
+export function SortSlots(size,x,y){
+    let slotSize = size
+    let posX = x === 0 ? x : x - slotSize.width
+    let posY = y === 0 ? y : y - slotSize.height
+    return {
+        x : posX,
+        y : posY
+    }
+}
+
 export class HistoryManager{
     static history = []
     static pivot = 0
@@ -48,7 +84,6 @@ export class HistoryManager{
             HistoryManager.history[HistoryManager.pivot-1] = temp
             return
         }
-
         if(isHis === -1)
             return
         if(HistoryManager.pivot === MaxHistorys)

@@ -10,7 +10,7 @@ export default class Network{
     }
 
     async get(url,...data){
-        let res = await fetch('/api/get'+url+data.join('/'))
+        let res = await fetch('/api/get'+url)
         return res.json();
     }
 

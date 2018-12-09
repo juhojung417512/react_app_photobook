@@ -22,6 +22,26 @@ router.get('/', function (req, res) {
     });
 });
 
+router.get('/photobook/new', async function (req, res) {
+    // new photobook
+    return res.json({
+        res: 1
+    });
+});
+
+router.get('/photobook/load/:id', async function (req, res) {
+    // id
+    return res.json({
+        data: [{}]
+    });
+});
+
+router.get('/photobook/get', async function (req, res) {
+    return res.json({
+        photobookList: [1, 2, 3, 4, 5, 6, 7, 8]
+    });
+});
+
 router.get('/photos', async function (req, res) {
     var photo_list = await _sqlmgr2.default.getPhotos();
     var list = [];

@@ -8,6 +8,26 @@ router.get('/',(req,res)=>{
     })
 })
 
+router.get('/photobook/new', async (req,res)=>{
+    // new photobook
+    return res.json({
+        res : 1
+    })
+})
+
+router.get('/photobook/load/:id',async(req,res)=>{
+    // id
+    return res.json({
+        data : [{}]
+    })
+})
+
+router.get('/photobook/get',async(req,res)=>{
+    return res.json({
+        photobookList : [1,2,3,4,5,6,7,8]
+    })
+})
+
 router.get('/photos',async (req,res)=>{
     let photo_list = await mysql.getPhotos()
     let list = []

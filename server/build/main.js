@@ -32,6 +32,22 @@ app.use(_bodyParser2.default.json());
 //     res.sendFile(path.resolve('../client/build', 'index.html'));
 // })
 
+app.get("/resources/templates/:category/:filename", async function (req, res) {
+    var filename = req.params.filename;
+    var category = req.params.category;
+
+    var filePath = _path2.default.join(__dirname, '../resources/templates/' + category, filename);
+    var stat = _fs2.default.statSync(filePath);
+    var fileEx = filename.split(".");
+    fileEx = fileEx[fileEx.length - 1];
+    res.writeHead(200, {
+        'Content-Type': fileEx,
+        'Content-Length': stat.size
+    });
+    var readStream = _fs2.default.createReadStream(filePath);
+    readStream.pipe(res);
+});
+
 app.get("/resources/:filetype/:filename", async function (req, res) {
     var filename = req.params.filename;
     var filetype = req.params.filetype;

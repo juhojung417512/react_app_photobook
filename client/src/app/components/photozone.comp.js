@@ -15,7 +15,7 @@ let mapStateToProps = (state)=>{
 
 let mapDispatchToProps = (dispatch) => {
     return {
-        CreatePhoto : (src,size)=>dispatch(CreatePhoto(src,size)),
+        CreatePhoto : (src,size,idx)=>dispatch(CreatePhoto(src,size,idx)),
     }
 }
 @hot(module)
@@ -69,9 +69,13 @@ export default class extends Component {
         return (
             <div className="tools">
                 <div className="photo-zone"> 
-                    <Photodnd count={this.state.photoList.length +1} createPhoto={(src,size)=>{this.props.CreatePhoto(src,size)}}
-                        photoList={this.state.photoList} isTemplate={this.props.isTemplate}
-                        frameBox={this.props.frameBox}/>
+                    <Photodnd 
+                        count={this.state.photoList.length +1}
+                        createPhoto={(src,size)=>{this.props.CreatePhoto(src,size,null)}}
+                        photoList={this.state.photoList} 
+                        isTemplate={this.props.isTemplate}
+                        frameBox={this.props.frameBox}
+                        />
                 </div>
                 <div className="photo-upload">
                     <button onClick={this.onClickLoadPhoto}>사진 업로드 하기</button>

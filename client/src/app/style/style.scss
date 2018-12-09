@@ -1,4 +1,32 @@
 @import "./page-transition.scss";
+@import './modalcon.scss';
+
+@-webkit-keyframes spin {
+    from   {  -webkit-transform: rotate(0deg); }
+    to   {  -webkit-transform: rotate(360deg); }
+}
+
+.loading-square{
+    border:0;
+    width:80px;
+    padding:0px;
+    margin-top: 90px;
+    margin-left: calc(50% - 40px);
+    margin-left: -webkit-calc(50% - 40px);
+    margin-left: -moz-calc(50% - 40px);
+}
+  
+.loading-spin {
+    height: 70px;
+    width: 70px;
+    border-radius: 50%;
+    border:dashed 5px #5B5B5B;
+    -webkit-animation-name: spin;
+    -webkit-animation-duration: 1.5s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+}
+
 body{
     margin:0;
     padding:0;
@@ -648,6 +676,10 @@ body{
                                     z-index: 3;
                                 }
                             }
+                        }
+
+                        .template-list{
+                            //
                         }
                     }
                 }

@@ -82,7 +82,7 @@ export default class extends Component {
             this.setState({
                 folderPosition : [0,0]
             })
-            return this.props.createSticker(this.state.targetId)
+            return this.props.createSticker(this.state.targetId,null)
         }
         else if(i !== this.props.count-1)
             return <Folder id={this.props.stickerList[i].id} img_src={this.props.stickerList[i].src} targetId={this.state.targetId} 

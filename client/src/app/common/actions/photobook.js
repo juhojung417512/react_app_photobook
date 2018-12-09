@@ -28,12 +28,49 @@ export const DELETE_TEXTBOX = "DELETE_TEXTBOX"
 export const RESET_TEXTBOX_STATE = "RESET_TEXTBOX_STATE"
 export const DRAG_TEXTBOX = "DRAG_TEXTBOX"
 export const RESIZE_TEXTBOX = "RESIZE_TEXTBOX"
+export const CHANGE_COLOR_TEXTBOX = "CHANGE_COLOR_TEXTBOX"
 export const REDO_HISTORY = "REDO_HISTORY"
 export const UNDO_HISTORY = "UNDO_HISTORY"
 export const CREATE_HISTORY = "CREATE_HISTORY"
 export const SET_TEMPLATE_IDX = "SET_TEMPLATE_IDX"
 export const SET_PREVIEW = "SET_PREVIEW"
 export const CALL_PREVIEW = "CALL_PREVIEW"
+export const GET_PHOTOBOOK_LIST = "GET_PHOTOBOOK_LIST"
+export const DRAG_FORCE_SLOT = "DRAG_FORCE_SLOT"
+export const DRAG_START_SLOT = "DRAG_START_SLOT"
+export const RESIZE_FORCE_SLOT = "RESIZE_FORCE_SLOT"
+export const RESIZE_START_SLOT = "RESIZE_START_SLOT"
+
+// server
+export const NEW_PHOTOBOOK = "NEW_PHOTOBOOK"
+export const LOAD_PHOTOBOOK = "LOAD_PHOTOBOOK"
+export const SAVE_PHOTOBOOK = "SAVE_PHOTOBOOK"
+export const GET_ALL_DATA = "GET_ALL_DATA"
+export const REFRESH_ALL_DATA = "REFRESH_ALL_DATA"
+
+export const RefreshAllData = actions(REFRESH_ALL_DATA, ()=>{
+    return true
+})
+
+export const GetAllData = actions(GET_ALL_DATA , () =>{
+    return true
+})
+
+export let GetPhotobookList = actions(GET_PHOTOBOOK_LIST, async ()=>{
+    return await Network.init().get('/photobook/get')
+})
+
+export let NewPhotobook = actions(NEW_PHOTOBOOK, async ()=>{
+    return await Network.init().get('/photobook/new')
+})
+
+export let LoadPhotobook = actions(LOAD_PHOTOBOOK, async (id)=>{
+    return await Network.init().get(`/photobook/load/${id}`)
+})
+
+export let SavePhotobook = actions(SAVE_PHOTOBOOK, async (data)=>{
+    return await Network.init().post('/photobook/save',{data : data})
+})
 
 export let SetTemaplteIdx = actions( SET_TEMPLATE_IDX, (idx)=>{
     return idx
@@ -43,8 +80,8 @@ export let GetTemplates = actions( GET_TEMPLATES, async()=>{
     return await Network.init().get('/templates')
 })
 
-export let GetTemplateInfo = actions( GET_TEMPLATE_INFO, async(templatId)=>{
-    return await Network.init().get('/template/',templatId)
+export let GetTemplateInfo = actions( GET_TEMPLATE_INFO, async(templateId)=>{
+    return await Network.init().get(`/template/${templateId}`)
 })
 
 export let ResetTemplateInfo = actions (RESET_TEMPLATE_INFO, ()=>{
@@ -67,8 +104,9 @@ export let DeactiveSlot = actions ( DEACTIVE_SLOT, (type,idx)=>{
     return {type : type, idx : idx}
 })
 
-export let SortSlot = actions( SORT_SLOT,(type)=>{
-    return type
+export let SortSlot = actions( SORT_SLOT,(type, x, y)=>{
+    let res = x !== undefined  ? {type : type, x : x, y: y} : {type: type}
+    return res
 })
 
 export let OrderSlot = actions( ORDER_SLOT,(type)=>{
@@ -79,16 +117,12 @@ export let GetPhotos = actions( GET_PHOTOS, async ()=>{
     return await Network.init().get('/photos')
 })
 
-export let CreatePhoto = actions( CREATE_PHOTO, (src,size)=>{
-    return {src : src, size : size}
+export let CreatePhoto = actions( CREATE_PHOTO, (src,size,idx)=>{
+    return {src : src, size : size, idx : idx}
 })
 
-export let DeletePhoto = actions( DELETE_PHOTO, (src, idx)=>{
-    return {src: src, idx: idx}
-})
-
-export let ResetPhotoState = actions( RESET_PHOTO_STATE, ()=>{
-    return true
+export let DeletePhoto = actions( DELETE_PHOTO, (idx, hFlag)=>{
+    return {idx: idx, hFlag : hFlag}
 })
 
 export let DragPhoto = actions( DRAG_PHOTO, (idx, prev, next)=>{
@@ -103,16 +137,12 @@ export let GetStickers = actions( GET_STICKERS, async ()=>{
     return await Network.init().get('/stickers')
 })
 
-export let CreateSticker = actions (CREATE_STICKER, (id)=>{
-    return {id : id}
+export let CreateSticker = actions (CREATE_STICKER, (id,idx)=>{
+    return {id : id, idx : idx}
 })
 
-export let DeleteSticker = actions (DELETE_STICKER, (id,idx)=>{
-    return {id: id, idx: idx}
-})
-
-export let ResetStickerState = actions(RESET_STICKER_STATE, ()=>{
-    return true
+export let DeleteSticker = actions (DELETE_STICKER, (idx,hFlag)=>{
+    return {idx : idx,hFlag : hFlag}
 })
 
 export let DragSticker = actions( DRAG_STICKER, (idx,prev,next)=>{
@@ -123,18 +153,14 @@ export let ResizeSticker = actions( RESIZE_STICKER, (idx,prev,next)=>{
     return {idx : idx, prev: prev, next: next}
 })
 
-export let CreateTextBox = actions(CREATE_TEXTBOX, ()=>{
-    return {res : true}
+export let CreateTextBox = actions(CREATE_TEXTBOX, (data)=>{
+    let data2dic = data !== undefined ? {idx : data.idx, txt : data.txt} : {idx : null}
+    return data2dic
 })
 
-export let DeleteTextBox = actions(DELETE_TEXTBOX, (txt,color,idx)=>{
-    return {txt: txt, color: color, idx: idx}
+export let DeleteTextBox = actions(DELETE_TEXTBOX, (txt,color,idx,hFlag)=>{
+    return {txt: txt, color: color, idx: idx, hFlag : hFlag}
 })
-
-export let ResetTextBoxState = actions(RESET_TEXTBOX_STATE, ()=>{
-    return true
-})
-
 export let DragTextBox = actions( DRAG_TEXTBOX, (idx,prev,next)=>{
     return {idx : idx, prev:prev, next:next}
 })
@@ -161,4 +187,24 @@ export let SetPreview = actions(SET_PREVIEW, (preview,idx)=>{
 
 export let CallPreview = actions(CALL_PREVIEW, ()=>{
     return true
+})
+
+export let ChangeColorTextBox = actions(CHANGE_COLOR_TEXTBOX, (idx,color)=>{
+    return {idx : idx, color : color}
+})
+
+export let DragForceSlot = actions(DRAG_FORCE_SLOT, (type,idx,pos)=>{
+    return {type : type, idx : idx, pos: pos}
+})
+
+export let DragStartSlot = actions(DRAG_START_SLOT, (type,idx)=>{
+    return {type : type, idx : idx}
+})
+
+export let ResizeForceSlot = actions(RESIZE_FORCE_SLOT, (type,idx,size)=>{
+    return {type : type, idx : idx, size : size}
+})
+
+export let ResizeStartSlot = actions(RESIZE_START_SLOT, (type,idx)=>{
+    return {type : type, idx : idx}
 })
