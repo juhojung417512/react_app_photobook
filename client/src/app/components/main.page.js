@@ -18,6 +18,7 @@ import Divider from './divider.comp'
 import { PHOTOBOOK_LIST ,SORT_LIST, ORDER_LIST, PreviewDivideValue} from '../common/constants'
 import {HistoryManager, elem2canvas} from '../common/utils'
 import Preview from './preview.comp'
+import TemplateSelectComp from './templateselect.comp'
 import NewPhotobookComp from './newphotobook.comp'
 import LoadPhotobookComp from './loadphotobook.comp'
 
@@ -41,7 +42,8 @@ import {
     LoadPhotobook,
     SavePhotobook,
     RefreshAllData,
-    GetAllData
+    GetAllData,
+    SelectTemplate
 } from "../common/actions"
 import { timingSafeEqual } from 'crypto';
 
@@ -62,7 +64,8 @@ let mapStateToProps = (state) => {
         preview : state.photobook.preview,
         template : state.photobook.template,
         photobookList : state.photobook.photobookList,
-        allData : state.photobook.allData
+        allData : state.photobook.allData,
+        
     }
 }
 
@@ -87,7 +90,8 @@ let mapDispatchToProps = (dispatch) => {
         CreateTextBox : ()=>dispatch(CreateTextBox()),
         CallPreview : ()=>dispatch(CallPreview()),
         RefreshAllData : ()=>dispatch(RefreshAllData()),
-        GetAllData : ()=>dispatch(GetAllData())
+        GetAllData : ()=>dispatch(GetAllData()),
+        SelectTemplate : (id)=>dispatch(SelectTemplate(id))
     }
 }
 
@@ -113,6 +117,7 @@ export default class extends Component {
             previewCanvas : [],
             previewWidth : null,
             isTemplateView : false, // template preview flag
+            isTemplateSelect : false, // template select flag
             isNewPhotobook : false, // new photo book flag
             isLoadPhotobook : false, // new load book flag
             allData : null,
@@ -323,6 +328,22 @@ export default class extends Component {
         if(this.state.templateIndex !== idx)
             this.changeTemplate(idx)
     }
+    
+    onClickTSComp = (flag,id)=>{
+        if(id === null || id !== undefined){
+            alert("템플릿을 선택해주세요.")
+        }
+        if(flag && id !== null){
+            this.props.SelectTemplate(id)
+            this.setState({
+                isNewPhotobook : true
+            })
+        } else {
+            this.setState({
+                isTemplateSelect : false
+            })
+        }
+    }
 
     onClickNPComp = (flag) =>{
         if(flag){
@@ -345,9 +366,9 @@ export default class extends Component {
     }
 
     onClickNew = ()=>{
-        if(!this.state.isNewPhotobook)
+        if(!this.state.isTemplateSelect)
             this.setState({
-                isNewPhotobook : true
+                isTemplateSelect : true
             })
     }
 
@@ -364,6 +385,11 @@ export default class extends Component {
         let isSlotStyle = this.props.selectedSlot.length > 0 ? "menu-txt right-border click" : "menu-txt right-border"
         
         return ( <div className="main-page transition-item">
+            {this.state.isTemplateSelect &&
+                <TemplateSelectComp
+                    onConfirm={(id)=>this.onClickTSComp(true,id)} 
+                    onQuit={()=>this.onClickTSComp(false)}
+                />}
             {this.state.isNewPhotobook && 
                 <NewPhotobookComp 
                     photobookList={this.state.photobookList} 
@@ -470,7 +496,7 @@ export default class extends Component {
                     </div>
                     <div className="paging">
                         <div className="paging-button"><img draggable={false} alt="paging-button" src={require('../resources/bottom_left.png')}/></div>
-                        {this.state.isTemplateView ? <div className="template-pages"></div> : 
+                        {this.state.isTemplateView ? <div className="template-pages">???</div> : 
                         <div ref="templatePreviews" className="template-pages">
                             {this.state.templates.map((raw,idx)=>{
                                 return(<div key={idx} ref={`previewBox${idx}`} className="preview-box" style={{flex: `0 0 ${this.state.previewWidth}px`}}></div>)

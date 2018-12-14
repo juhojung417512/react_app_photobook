@@ -42,11 +42,17 @@ export const RESIZE_FORCE_SLOT = "RESIZE_FORCE_SLOT"
 export const RESIZE_START_SLOT = "RESIZE_START_SLOT"
 
 // server
+export const SET_PATH_NEW_PHOTOBOOK = "SET_PATH_NEW_PHOTOBOOK"
+export const SELECT_TEMPLATE = "SELECT_TEMPLATE"
 export const NEW_PHOTOBOOK = "NEW_PHOTOBOOK"
 export const LOAD_PHOTOBOOK = "LOAD_PHOTOBOOK"
 export const SAVE_PHOTOBOOK = "SAVE_PHOTOBOOK"
 export const GET_ALL_DATA = "GET_ALL_DATA"
 export const REFRESH_ALL_DATA = "REFRESH_ALL_DATA"
+
+export const SetPathNewPhotobook = actions(SET_PATH_NEW_PHOTOBOOK, async(id)=>{
+    return await Network.init().post('/photobook/setID',id)
+})
 
 export const RefreshAllData = actions(REFRESH_ALL_DATA, ()=>{
     return true
@@ -60,8 +66,13 @@ export let GetPhotobookList = actions(GET_PHOTOBOOK_LIST, async ()=>{
     return await Network.init().get('/photobook/get')
 })
 
-export let NewPhotobook = actions(NEW_PHOTOBOOK, async ()=>{
-    return await Network.init().get('/photobook/new')
+export let SelectTemplate = actions( SELECT_TEMPLATE, (id)=>{
+    return id
+})
+
+export let NewPhotobook = actions(NEW_PHOTOBOOK, async (id)=>{
+    // id -> 서버에 저장되는 포토북 id
+    return await Network.init().post('/photobook/new',{id:id})
 })
 
 export let LoadPhotobook = actions(LOAD_PHOTOBOOK, async (id)=>{

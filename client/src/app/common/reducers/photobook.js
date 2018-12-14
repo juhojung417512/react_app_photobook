@@ -40,7 +40,9 @@ import {
     DRAG_FORCE_SLOT,
     DRAG_START_SLOT,
     RESIZE_FORCE_SLOT,
-    RESIZE_START_SLOT
+    RESIZE_START_SLOT,
+    SELECT_TEMPLATE,
+    SET_PATH_NEW_PHOTOBOOK
 } from '../actions'
 import {HistoryManager, OrderSlots, SortSlots} from "../utils"
 import {ORDER_LIST_TYPE} from "../constants"
@@ -53,6 +55,7 @@ let stateStore = {
 let initialState={
     template : null,
     templateIndex : null,
+    templateCategoryId : null,
     templateList : null,
     isCreate : false,
     photoList : [],
@@ -89,6 +92,7 @@ let initialState={
 export default function photobook(state=initialState, action){
     let hFlag = true
     switch(action.type){
+        
         case CREATE_PHOTO :
             if(action.payload.idx === null)
                 action.payload.idx = state.photos.length
@@ -120,6 +124,18 @@ export default function photobook(state=initialState, action){
         HistoryManager.init().WriteHistory(action)
 
     switch (action.type) {
+        case SET_PATH_NEW_PHOTOBOOK : 
+            console.log(action.payload)
+            return{
+                ...state
+            }
+        case SELECT_TEMPLATE : 
+            let id = action.payload
+            return{
+                ...state,
+                templateCategoryId : id
+            }
+            // id로 템플릿 페이지 쭈르륵 생성 (30개), 포토북 경로 선택 팝업.., 새포토북 , 불러오기 팝업 가운데에 표지 뜨도록
         case REFRESH_ALL_DATA : 
             return {
                 ...state,

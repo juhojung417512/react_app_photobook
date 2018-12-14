@@ -75,10 +75,10 @@ export default class extends Component {
                         </div>
                         <div className="newpb-btns">
                             <div className="confirm-box" onClick={this.props.onConfirm}>
-                                <img alt="confirm" src={require('../resources/preview_submit.png')} />
+                                <img alt="confirm" src={require('../resources/icon_newpb_select.png')} />
                             </div>
                             <div className="cancel-box" onClick={this.props.onQuit}>
-                                <img alt="cancel" src={require('../resources/preview_submit.png')} />
+                                <img alt="cancel" src={require('../resources/icon_newpb_cancel.png')} />
                             </div>
                         </div>
                     </div>
