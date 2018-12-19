@@ -2,6 +2,30 @@
     justify-content: center;
     align-items: center;
     z-index : 99;
+    .modal-on-modal{
+        display: flex;
+        position : absolute;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.5);
+        width : 100%;
+        height : 100%;
+        z-index: 100;
+        .container{
+            width: 40%;
+            min-height : 40%;
+            background-color: #F0F1F5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .cancel-btn, .select-btn{
+                cursor: pointer;
+            }
+            img{
+                width : 80px;
+            }
+        }
+    }
     .loading-square{
         width : 100%;
         padding : 0;
@@ -16,6 +40,7 @@
         }
         .loading-txt{
             margin-top : 20px;
+            min-width: 160px;
         }
     }
     .container{
@@ -52,19 +77,22 @@
                 margin: 40px 0 20px 0;
                 font-weight: bold;
                 .gray{
-                    background-color: 97989A
+                    background-color: #97989A;
                 }
                 .text{
                     color : #97989A;
                     font-size : 16px;
                     padding: 0 10px;
+                    min-width : 90px;
+                    text-align: center;
                 }
                 .input{
-                    min-width: 550px;
-                    min-height: 40px;
+                    min-width: 50vw;
+                    min-height: 42px;
                     border-radius: 20px;
                     border : 1px solid white;
                     font-size: 16px;
+                    padding : 0px;
                     padding-left: 20px;
                 }
                 .confirm-btn{
@@ -78,6 +106,10 @@
                     line-height: 45px;
                     border : 1px solid #62CBF0;
                     border-radius: 20px;
+                    cursor: pointer;
+                    &:hover{
+                        background-color: #74BDE2;
+                    }
                 }
             }
             .path-container{
@@ -85,8 +117,8 @@
                 padding-right: 24px;
                 padding-left : 22px;
                 .path{
-                    min-width: 550px;
-                    min-height: 44px;
+                    min-width: 50vw;
+                    min-height: 42px;
                     border-radius: 20px;
                     border : 1px solid white;
                     font-size: 16px;
@@ -96,16 +128,20 @@
             }
             .photobook-container{
                 width: 76%;
-                min-height: 380px;
+                height: 380px;
                 background-color: white;
                 border : 1px solid white;
                 border-radius: 20px;
                 display: flex;
                 flex-flow : wrap;
+                overflow: auto;
                 .item{
                     width : 100px;
                     height : 100px;
-                    margin : 15px;
+                    margin : 40px;
+                    img{
+                        width : 150px;
+                    }
                 }
                 .selected{
                     border : 1px solid #62CBF0;
@@ -173,6 +209,7 @@
             flex : 1;
             width : 100%;
             background-color: #F6F7FB;
+            padding: 10px 0;
             .btn{
                 display: flex;
                 justify-content: center;
@@ -214,7 +251,7 @@
                     }
                     img{
                         width : 200px;
-                        padding : 5px;
+                        margin : 5px;
                     }
                 }
             }

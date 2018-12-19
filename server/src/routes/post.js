@@ -31,19 +31,19 @@ router.post("/upload/image",upload,(req,res)=>{
 })
 
 router.post("/photobook/save",(req,res)=>{
-    let data = req
+    let data = req.body[0].data
+    let id = req.body[0].id
+    // update photobook by id
     console.log(data)
     return true
 })
 
 router.post("/upload/photobook",(req,res)=>{
     let imageData = req
-    console.log(imageData)
     return true
 })
 
 router.post('/login', async (req, res) => {
-    console.log('reading post ', req.body);
     let data = req.body[0]
     if(data.id == undefined || data.pw == undefined)
         return res.json({
@@ -51,11 +51,34 @@ router.post('/login', async (req, res) => {
         })
     let result = await mysql.login(data.id,data.pw)
     return res.json({
-        result : result !== undefined && result.userId !== undefined ? true : false,
-        id: data.id,
-        pw: data.pw
+        result : result !== null && result.userId !== undefined ? true : false,
     });
 });
+
+router.post('/photobook/path', async(req,res)=>{
+    // let result = await mysql.newPhotobookPath(req.body[0].path)
+    let result = {
+        insertId : 1
+    }
+    return res.json({
+        res : result !== null ? true : false,
+        path : req.body[0].path,
+        id : result !== null ? result.insertId : null
+    })
+})
+
+router.post('/photobook/new', async (req,res)=>{
+    // new photobook
+    let data = req.body[0]
+    let templateCategoryId = req.body[0].templateCategoryId;
+    let result = await mysql.getTemplatesByCategoryId(templateCategoryId);
+    await mysql.updatePhotobook(data.id,data.name,templateCategoryId,data.userId)
+    // new photobook row
+    
+    return res.json({
+        res : result,
+    })
+})
 
 
 export default router;

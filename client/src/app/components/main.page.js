@@ -16,7 +16,7 @@ import Template from './template.comp'
 import Sticker from './sticker.comp'
 import Divider from './divider.comp'
 import { PHOTOBOOK_LIST ,SORT_LIST, ORDER_LIST, PreviewDivideValue} from '../common/constants'
-import {HistoryManager, elem2canvas} from '../common/utils'
+import {HistoryManager, elem2canvas, sleep} from '../common/utils'
 import Preview from './preview.comp'
 import TemplateSelectComp from './templateselect.comp'
 import NewPhotobookComp from './newphotobook.comp'
@@ -37,15 +37,15 @@ import {
     RedoHistory,
     CreateTextBox,
     CallPreview,
-    GetPhotobookList,
     NewPhotobook,
     LoadPhotobook,
     SavePhotobook,
     RefreshAllData,
     GetAllData,
-    SelectTemplate
+    SelectTemplate,
 } from "../common/actions"
 import { timingSafeEqual } from 'crypto';
+import { runInThisContext } from 'vm';
 
 let mapStateToProps = (state) => {
     return {
@@ -63,18 +63,16 @@ let mapStateToProps = (state) => {
         photoList : state.photobook.photoList,
         preview : state.photobook.preview,
         template : state.photobook.template,
-        photobookList : state.photobook.photobookList,
         allData : state.photobook.allData,
-        
+        templateCategoryId : state.photobook.templateCategoryId
     }
 }
 
 let mapDispatchToProps = (dispatch) => {
     return {
-        GetPhotobookList : () => dispatch(GetPhotobookList()),
-        NewPhotobook : () => dispatch(NewPhotobook()),
+        NewPhotobook : (data) => dispatch(NewPhotobook(data)),
         LoadPhotobook : (id) => dispatch(LoadPhotobook(id)),
-        SavePhotobook : (id) => dispatch(SavePhotobook(id)),
+        SavePhotobook : (id,data) => dispatch(SavePhotobook(id,data)),
         SetTemaplteIdx : (idx) => dispatch(SetTemaplteIdx(idx)),
         GetTemplateInfo:(id)=>dispatch(GetTemplateInfo(id)),
         ResetTemplateInfo : ()=>dispatch(ResetTemplateInfo()),
@@ -91,7 +89,7 @@ let mapDispatchToProps = (dispatch) => {
         CallPreview : ()=>dispatch(CallPreview()),
         RefreshAllData : ()=>dispatch(RefreshAllData()),
         GetAllData : ()=>dispatch(GetAllData()),
-        SelectTemplate : (id)=>dispatch(SelectTemplate(id))
+        SelectTemplate : (id)=>dispatch(SelectTemplate(id)),
     }
 }
 
@@ -101,6 +99,7 @@ export default class extends Component {
     constructor() {
         super();
         this.state = {
+            isLoading : false,
             showMenu : false,
             dropdownMenuStyle : {display:"none"},
             dropdownSortStyle : {display:"none"},
@@ -117,26 +116,32 @@ export default class extends Component {
             previewCanvas : [],
             previewWidth : null,
             isTemplateView : false, // template preview flag
-            isTemplateSelect : false, // template select flag
+            isTemplateSelect : true, // template select flag
             isNewPhotobook : false, // new photo book flag
             isLoadPhotobook : false, // new load book flag
+            templateCategoryId : null, 
+            templateCategoryData : null,
             allData : null,
-            photobookList : null
+            isGetAllData : false,
+            isCreatePhotobook : false,
+            userId : null,
+            photobookId : null
         };
     }
 
     componentDidMount() {
+        window.timeoutList = []
         if (!window.getCookie('isLogin'))
             history.replace('/')
         this.setState({
             templates : [null],
             templateIds : [null],
+            userId : window.getCookie('userId')
         })
-
+        this.props.GetLoginData()
         this.props.SetTemaplteIdx(0)
         this.props.GetStickers() // sticker api need
         this.props.GetPhotos()
-        this.props.GetPhotobookList()
     }
 
     componentWillReceiveProps(nProps){
@@ -157,16 +162,61 @@ export default class extends Component {
             })
         }
         if(this.state.allData !== nProps.allData){
-            this.props.RefreshAllData()
             this.setState({
                 allData : nProps.allData
+            },()=>{
+                if(nProps.allData !== null){
+                    if(this.state.isGetAllData){
+                        this.setState({
+                            isGetAllData : false,
+                            isLoading : false
+                        })
+                        this.onClickSave(nProps.allData)
+                    } else {
+                        this.setPhotobook(nProps.allData)
+                    }
+                    this.props.RefreshAllData()
+                }
             })
         }
-        if(this.state.photobookList !== nProps.photobookList){
+        if(this.state.templateCategoryId !== nProps.templateCategoryId){
             this.setState({
-                photobookList : nProps.photobookList
+                templateCategoryId : nProps.templateCategoryId
             })
         }
+    }
+
+    setPhotobook = async(data)=>{
+        this.props.RefreshAllData()
+        await this.setState({
+            isLoading : true
+        })
+        for(let i=0;i<Object.keys(data).length;i++)
+        {
+            this.state.templates[i] = data[i].template
+            this.state.templateIds[i] = data[i].template.id
+        }
+        await this.setState({
+            templates : this.state.templates,
+            templateIds : this.state.templateIds,
+        })
+        // load all template
+        for(let i=0;i<Object.keys(data).length;i++){
+            await this.setState({
+                templateIndex : i
+            })
+            await sleep(500)
+        }
+        this.props.GetStickers()
+        this.props.GetPhotos()
+        await sleep(500)
+        this.setState({
+            isLoading : false,
+            templateIndex : 0,
+            dividerState : 'Template',
+            isNewPhotobook : false,
+            isLoadPhotobook : false
+        })
     }
 
     showMenu = (e)=> {
@@ -235,6 +285,8 @@ export default class extends Component {
     }
 
     changeTemplate = async (idx)=>{
+        for(let t of window.timeoutList)
+            clearTimeout(t)
         this.props.SetTemaplteIdx(idx)
         this.props.GetStickers() // sticker api need
         this.props.GetPhotos()
@@ -277,13 +329,12 @@ export default class extends Component {
         })
     }
 
-    onClickPreview = ()=>{
+    onClickPreview = async()=>{
         this.props.CallPreview()
-        setTimeout(()=>{
-            this.setState({
-                isPreview : true
-            })
-        }, 1000)
+        await sleep(1000)
+        this.setState({
+            isPreview : true
+        })
     }
 
     onClickClosePreview = ()=>{
@@ -329,25 +380,36 @@ export default class extends Component {
             this.changeTemplate(idx)
     }
     
-    onClickTSComp = (flag,id)=>{
-        if(id === null || id !== undefined){
-            alert("템플릿을 선택해주세요.")
-        }
-        if(flag && id !== null){
-            this.props.SelectTemplate(id)
-            this.setState({
-                isNewPhotobook : true
-            })
-        } else {
+    onClickTSComp = (flag,data)=>{
+        if(!flag){
             this.setState({
                 isTemplateSelect : false
             })
+            return
         }
+        if(data === null || data === undefined){
+            alert("템플릿을 선택해주세요.")
+            return
+        }
+        this.props.SelectTemplate(data.id)
+        this.setState({
+            isTemplateSelect : false,
+            isNewPhotobook : true,
+            templateCategoryData : data.templates
+        })
     }
 
-    onClickNPComp = (flag) =>{
+    onClickNPComp = async (flag,data) =>{
         if(flag){
-            this.props.NewPhotobook()
+            await this.setState({
+                photobookId : data.id,
+                isNewPhotobook : false
+            })
+            console.log(data)
+            if(data.templateCategoryId !== undefined)
+                this.props.NewPhotobook(data)
+            else
+                this.onClickSave(null)
         } else{
             this.setState({
                 isNewPhotobook : false
@@ -379,12 +441,46 @@ export default class extends Component {
             })
     }
 
+    onClickSave = (data)=>{
+        console.log(data,this.state.photobookId)
+        if(data === null){
+            if(this.state.photobookId === null){
+                // first save photobook
+                this.setState({
+                    isNewPhotobook : true,
+                    templateCategoryData : [...this.state.templates]
+                })
+            } else {
+                // template select and save OR first save photobook-> next in
+                this.props.GetAllData()
+                this.setState({
+                    isNewPhotobook : false,
+                    isGetAllData : true,
+                    isLoading : true
+                })
+            }
+        } else {
+            // server save photobook
+            this.props.SavePhotobook(this.state.photobookId,data)
+            this.setState({
+                isLoading : false
+            })
+        }
+    }
+
     render() {
         let undoStyle = HistoryManager.init().CheckUndo() === true ? "menu-txt right-border click" : "menu-txt right-border"
         let redoStyle = HistoryManager.init().CheckRedo() === true ? "menu-txt right-border click" : "menu-txt right-border"
         let isSlotStyle = this.props.selectedSlot.length > 0 ? "menu-txt right-border click" : "menu-txt right-border"
-        
         return ( <div className="main-page transition-item">
+            {(this.state.userId === null || this.state.isLoading) &&
+                <div className="modal-container main-loading-square"> 
+                    <div className="loading-square">
+                        <div className="loading-spin"></div>
+                        <div className="loading-txt">잠시만 기다려주세요...</div>
+                    </div>
+                </div>
+            }
             {this.state.isTemplateSelect &&
                 <TemplateSelectComp
                     onConfirm={(id)=>this.onClickTSComp(true,id)} 
@@ -392,13 +488,15 @@ export default class extends Component {
                 />}
             {this.state.isNewPhotobook && 
                 <NewPhotobookComp 
-                    photobookList={this.state.photobookList} 
-                    onConfirm={()=>this.onClickNPComp(true)} 
+                    userId={this.props.userId}
+                    templateCategoryData={this.state.templateCategoryData}
+                    templateCategoryId={this.state.templateCategoryId}
+                    onConfirm={(data)=>this.onClickNPComp(true,data)} 
                     onQuit={()=>this.onClickNPComp(false)}
                 />}
             {this.state.isLoadPhotobook &&
                 <LoadPhotobookComp
-                    photobookList={this.state.photobookList}
+                    userId={this.props.userId}
                     onConfirm={(id)=>this.props.LoadPhotobook(id)}
                     onQuit={()=>this.onClickLPComp(false)}
                 />}
@@ -407,7 +505,7 @@ export default class extends Component {
                 <div className="menu-txt right-border click" onClick={this.onClickNew}>
                     <img alt="top_img" src={require('../resources/top_newphotobook.png')}/>새 포토북
                 </div>
-                <div className="menu-txt right-border click" onClick={HistoryManager.init().CheckUndo() === true ? this.props.SavePhotobook : null}>
+                <div className="menu-txt right-border click" onClick={this.state.templates[0] !== null ? this.onClickSave.bind(this,null) : null}>
                     <img alt="top_img" src={require('../resources/top_save.png')}/>저장
                 </div>
                 <div className="menu-txt right-border click" onClick={this.onClickLoad}>
@@ -478,7 +576,9 @@ export default class extends Component {
                 </Divider>
                 <div className="template-page">
                     <div className="template-frame">
-                        <div className="frame-button" onClick={this.onClickTemplateMove.bind(this,'prev')}><img alt="frame-button" src={require('../resources/blue_left.png')}/></div>
+                        <div className="frame-button" onClick={this.onClickTemplateMove.bind(this,'prev')}>
+                            <img alt="frame-button" src={require('../resources/blue_left.png')}/>
+                        </div>
                         <div className="frame-box" ref="frameBox">
                             {this.state.templates.map((raw,idx)=>{
                                 return(<Template 
@@ -492,7 +592,9 @@ export default class extends Component {
                                     />)
                             })}
                         </div>
-                        <div className="frame-button" onClick={this.onClickTemplateMove.bind(this,'next')}><img alt="frame-button" src={require('../resources/blue_right.png')}/></div>
+                        <div className="frame-button" onClick={this.onClickTemplateMove.bind(this,'next')}>
+                            <img alt="frame-button" src={require('../resources/blue_right.png')}/>
+                        </div>
                     </div>
                     <div className="paging">
                         <div className="paging-button"><img draggable={false} alt="paging-button" src={require('../resources/bottom_left.png')}/></div>

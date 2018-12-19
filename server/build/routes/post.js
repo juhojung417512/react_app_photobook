@@ -53,28 +53,51 @@ router.post("/upload/image", upload, function (req, res) {
 });
 
 router.post("/photobook/save", function (req, res) {
-    var data = req;
+    var data = req.body[0].data;
+    var id = req.body[0].id;
+    // update photobook by id
     console.log(data);
     return true;
 });
 
 router.post("/upload/photobook", function (req, res) {
     var imageData = req;
-    console.log(imageData);
     return true;
 });
 
 router.post('/login', async function (req, res) {
-    console.log('reading post ', req.body);
     var data = req.body[0];
     if (data.id == undefined || data.pw == undefined) return res.json({
         result: false
     });
     var result = await _sqlmgr2.default.login(data.id, data.pw);
     return res.json({
-        result: result !== undefined && result.userId !== undefined ? true : false,
-        id: data.id,
-        pw: data.pw
+        result: result !== null && result.userId !== undefined ? true : false
+    });
+});
+
+router.post('/photobook/path', async function (req, res) {
+    // let result = await mysql.newPhotobookPath(req.body[0].path)
+    var result = {
+        insertId: 1
+    };
+    return res.json({
+        res: result !== null ? true : false,
+        path: req.body[0].path,
+        id: result !== null ? result.insertId : null
+    });
+});
+
+router.post('/photobook/new', async function (req, res) {
+    // new photobook
+    var data = req.body[0];
+    var templateCategoryId = req.body[0].templateCategoryId;
+    var result = await _sqlmgr2.default.getTemplatesByCategoryId(templateCategoryId);
+    await _sqlmgr2.default.updatePhotobook(data.id, data.name, templateCategoryId, data.userId);
+    // new photobook row
+
+    return res.json({
+        res: result
     });
 });
 

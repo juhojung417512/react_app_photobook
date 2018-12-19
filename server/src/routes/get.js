@@ -8,23 +8,23 @@ router.get('/',(req,res)=>{
     })
 })
 
-router.get('/photobook/new', async (req,res)=>{
-    // new photobook
-    return res.json({
-        res : 1
-    })
-})
-
 router.get('/photobook/load/:id',async(req,res)=>{
-    // id
-    return res.json({
-        data : [{}]
-    })
+    let id = req.params.id
+    let p = await mysql.getPhotobookById(id)
+    if(p !== null && p.length > 0){
+        let result = await mysql.getTemplatesByCategoryId(templateCategoryId);
+        return res.json({
+            res : result
+        })
+    }
+    return null
+    
 })
 
-router.get('/photobook/get',async(req,res)=>{
+router.get('/photobook/get/:userId',async(req,res)=>{
+    let result = await mysql.getPhotobookByUserId(req.params.userId)
     return res.json({
-        photobookList : [1,2,3,4,5,6,7,8]
+        photobookList : result
     })
 })
 

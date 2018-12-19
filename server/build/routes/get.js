@@ -22,23 +22,22 @@ router.get('/', function (req, res) {
     });
 });
 
-router.get('/photobook/new', async function (req, res) {
-    // new photobook
-    return res.json({
-        res: 1
-    });
-});
-
 router.get('/photobook/load/:id', async function (req, res) {
-    // id
-    return res.json({
-        data: [{}]
-    });
+    var id = req.params.id;
+    var p = await _sqlmgr2.default.getPhotobookById(id);
+    if (p !== null && p.length > 0) {
+        var result = await _sqlmgr2.default.getTemplatesByCategoryId(templateCategoryId);
+        return res.json({
+            res: result
+        });
+    }
+    return null;
 });
 
-router.get('/photobook/get', async function (req, res) {
+router.get('/photobook/get/:userId', async function (req, res) {
+    var result = await _sqlmgr2.default.getPhotobookByUserId(req.params.userId);
     return res.json({
-        photobookList: [1, 2, 3, 4, 5, 6, 7, 8]
+        photobookList: result
     });
 });
 

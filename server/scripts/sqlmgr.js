@@ -44,6 +44,46 @@ class SQLMgr {
             WHERE id = ?
         `,[id])
     }
+    
+    async getTemplatesByCategoryId(id){
+        return await this.mysql.query(`
+            SELECT * 
+            FROM template
+            WHERE category_id = ? 
+                AND isMain = 0
+        `,[id])
+    }
+
+    async getPhotobookByUserId(userId){
+        return await this.mysql.query(`
+            SELECT *
+            FROM user_photobook
+            WHERE userId = ?
+        `,[userId])
+    }
+
+    async getPhotobookById(id){
+        return await this.mysql.query(`
+            SELECT *
+            FROM user_photobook
+            WHERE id = ?
+        `,[id])
+    }
+
+    async newPhotobookPath(path){
+        return await this.mysql.query(`
+            INSERT INTO user_photobook(path)
+            VALUES (?)
+        `,[path])
+    }
+    
+    async updatePhotobook(id,name,templateCategoryId,userId){
+        return await this.mysql.query(`
+            UPDATE user_photobook
+            SET name = ?, templateCategoryId = ?, userId = ?
+            WHERE id = ?
+        `,[name,templateCategoryId,userId,id])
+    }
 }
 
 module.exports = new SQLMgr()

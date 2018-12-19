@@ -6,7 +6,8 @@ import Network from '../common/Network'
 import history from '../common/history';
 
 import { 
-    Login
+    Login,
+    SetLoginData
 } from "../common/actions"
 
 let mapStateToProps = (state)=>{
@@ -18,6 +19,7 @@ let mapStateToProps = (state)=>{
 let mapDispatchToProps = (dispatch) => {
     return {
         Login:(id,pw)=>dispatch(Login(id,pw)),
+        SetLoginData : (id)=>dispatch(SetLoginData(id))
     }
 }
 @hot(module)
@@ -26,6 +28,7 @@ export default class extends Component {
     constructor() {
         super();
         this.state = {
+            holdId : "",
             id: "",
             pw: "",
             isLogin : null
@@ -50,6 +53,7 @@ export default class extends Component {
 
     componentWillReceiveProps(nProps){
         if(nProps.user.isLogin && history.location.pathname !== '/main'){
+            this.props.SetLoginData(this.state.holdId)
             history.push('/main')
         }
     }
@@ -60,6 +64,9 @@ export default class extends Component {
         this.props.Login({
             'id': this.state.id,
             'pw': this.state.pw
+        })
+        this.setState({
+            holdId : this.state.id
         })
     }
 

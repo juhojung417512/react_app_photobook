@@ -2,6 +2,29 @@ import html2canvas from 'html2canvas'
 import jszip from 'jszip'
 import {HISTORYS,MaxHistorys , ORDER_LIST_TYPE, SORT_LIST_TYPE} from './constants'
 
+export class StateStoreManager{
+    static stateStore = []
+    static instance = null
+    static init(){
+        if(StateStoreManager.instance === null)
+            StateStoreManager.instance = new StateStoreManager()
+        return StateStoreManager.stateStore
+    }
+
+    static setTemplateStateStore(data,idx){
+        StateStoreManager.stateStore[idx] = data
+        return
+    }
+
+    static getStateStore(){
+        return StateStoreManager.stateStore
+    }
+}
+
+export function sleep(time){
+    return new Promise((r)=>{setTimeout(r, time)})
+}
+
 export async function elem2canvas(content,...args){
     return await html2canvas(content, {useCORS: true, logging: false, ...args[0]})
 }

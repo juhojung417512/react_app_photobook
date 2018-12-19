@@ -42,17 +42,50 @@ import {
     RESIZE_FORCE_SLOT,
     RESIZE_START_SLOT,
     SELECT_TEMPLATE,
-    SET_PATH_NEW_PHOTOBOOK
+    SET_PATH_NEW_PHOTOBOOK,
 } from '../actions'
-import {HistoryManager, OrderSlots, SortSlots} from "../utils"
+import {HistoryManager, OrderSlots, SortSlots,StateStoreManager} from "../utils"
 import {ORDER_LIST_TYPE} from "../constants"
 import {HISTORYS} from '../constants'
 
-let stateStore = {
-    // state store
+let photobookInit={
+    templateIndex : null,
+    templateCategoryId : null,
+    templateList : null,
+    isCreate : false,
+    photoList : [],
+    photoData : null,
+    stickerList : null,
+    stickerId : null,
+    undo : null,
+    redo : null,
+    pivot : 0,
+    selectedSlot : [],
+    selectedType : [],
+    sortStyle : null,
+    orderStyle : null,
+    isPreview : false,
+    preview : [],
+    photobookList : null,
+    allData : null,
+    photos: [],
+    photosForceDragPos : [],
+    photosResize : [],
+    photosOrder : [],
+    stickers : [],
+    stickersForceDragPos : [],
+    stickersResize : [],
+    stickersOrder : [],
+    textboxes : [],
+    textColor : [],
+    textboxesForceDragPos : [],
+    textboxesResize : [],
+    textboxesOrder : [],
+    maxOrder : 0,
+    photobookPath : null
 }
-
 let initialState={
+    photobookId : null,
     template : null,
     templateIndex : null,
     templateCategoryId : null,
@@ -86,13 +119,14 @@ let initialState={
     textboxesForceDragPos : [],
     textboxesResize : [],
     textboxesOrder : [],
-    maxOrder : 0
+    maxOrder : 0,
+    photobookPath : null
 }
 
 export default function photobook(state=initialState, action){
     let hFlag = true
+    StateStoreManager.init()
     switch(action.type){
-        
         case CREATE_PHOTO :
             if(action.payload.idx === null)
                 action.payload.idx = state.photos.length
@@ -125,9 +159,16 @@ export default function photobook(state=initialState, action){
 
     switch (action.type) {
         case SET_PATH_NEW_PHOTOBOOK : 
-            console.log(action.payload)
+            if(!action.payload.res){
+                alert('경로 지정에 실패했습니다.')
+                return{
+                    ...state
+                }
+            }
             return{
-                ...state
+                ...state,
+                photobookId : action.payload.id,
+                photobookPath : action.payload.path
             }
         case SELECT_TEMPLATE : 
             let id = action.payload
@@ -135,7 +176,6 @@ export default function photobook(state=initialState, action){
                 ...state,
                 templateCategoryId : id
             }
-            // id로 템플릿 페이지 쭈르륵 생성 (30개), 포토북 경로 선택 팝업.., 새포토북 , 불러오기 팝업 가운데에 표지 뜨도록
         case REFRESH_ALL_DATA : 
             return {
                 ...state,
@@ -143,10 +183,10 @@ export default function photobook(state=initialState, action){
             }
         case GET_ALL_DATA:
             if(state.templateIndex !== null)
-                stateStore[state.templateIndex] = state
+                StateStoreManager.setTemplateStateStore(state,state.templateIndex)
             return{
                 ...state,
-                allData : stateStore
+                allData : StateStoreManager.getStateStore()
             }
         case GET_PHOTOBOOK_LIST :
             return {
@@ -154,16 +194,45 @@ export default function photobook(state=initialState, action){
                 photobookList : action.payload.photobookList
             }
         case NEW_PHOTOBOOK :
-            stateStore = {}
+            let res = action.payload.res
+            if(res === null || res.length === 0){
+                alert("포토북을 불러오는데 실패했습니다. 관리자에게 문의 바랍니다.")
+                return {
+                    ...state
+                }
+            }
+            
+            for(let i=0;i<res.length;i++){
+                let s = {
+                    template : null,
+                    ...photobookInit
+                }
+                s.template = res[i]
+                StateStoreManager.setTemplateStateStore(s,i)
+            }
+            let store = StateStoreManager.getStateStore()
             return {
-                ...initialState
+                ...store[0],
+                allData : store
             }
         case LOAD_PHOTOBOOK :
-            // return {
-            //     ...action.payload.data
-            // }
+            let res_load = action.payload.res
+            if(res_load === null || res_load.length === 0){
+                alert('불러오는데 실패했습니다. 관리자에게 문의 바랍니다.')
+                return{
+                    ...state
+                }
+            }
+            for(let i=0;i<res_load.length;i++){
+                let s = {
+                    ...res_load[i]
+                }
+                StateStoreManager.setTemplateStateStore(s,i)
+            }
+            let load_store = StateStoreManager.getStateStore()
             return{
-                ...state
+                ...load_store[0],
+                allData : load_store
             }
         case SAVE_PHOTOBOOK :
             action.payload ? alert('저장되었습니다.') : alert('저장실패. 관리자에게 문의해주세요.')
@@ -237,12 +306,14 @@ export default function photobook(state=initialState, action){
                 textboxesForceDragPos : state.textboxesForceDragPos
             }
         case SET_TEMPLATE_IDX : 
-            if(Object.keys(stateStore).length < action.payload + 1)
-                stateStore[action.payload] = initialState
+            let t_store = StateStoreManager.getStateStore()
+            if(t_store.length < action.payload + 1)
+                StateStoreManager.setTemplateStateStore(initialState,action.payload)
             if(state.templateIndex !== null)
-                stateStore[state.templateIndex] = state
+                StateStoreManager.setTemplateStateStore(state,state.templateIndex)
+            t_store = StateStoreManager.getStateStore()
             return{
-                ...stateStore[action.payload],
+                ...t_store[action.payload],
                 templateIndex : action.payload
             }
         case GET_TEMPLATES:
@@ -378,6 +449,7 @@ export default function photobook(state=initialState, action){
         case DRAG_FORCE_SLOT : 
             let slotIdx = action.payload.idx
             let pos = action.payload.pos
+            console.log("?????",slotIdx)
             switch(action.payload.type){
                 case HISTORYS.DRAG_P: 
                     if(state.photos[slotIdx].display === false)
@@ -487,10 +559,12 @@ export default function photobook(state=initialState, action){
                 stickerId : null
             }
         case DRAG_STICKER : 
+            state.stickersForceDragPos[action.payload.idx] = action.payload.next
             return {
                 ...state,
                 sortStyle : null,
-                orderStyle : null
+                orderStyle : null,
+                stickersForceDragPos : [...state.stickersForceDragPos]
             }
         case RESIZE_STICKER : 
             state.stickersResize[action.payload.idx] = action.payload.next

@@ -3,7 +3,7 @@ import { hot } from 'react-hot-loader'
 import { connect } from 'react-redux';
 
 import { 
-    GetTemplates
+    GetTemplates,
 } from "../common/actions"
 
 let mapStateToProps = (state)=>{
@@ -14,7 +14,7 @@ let mapStateToProps = (state)=>{
 
 let mapDispatchToProps = (dispatch) => {
     return {
-        GetTemplates : ()=>dispatch(GetTemplates())
+        GetTemplates : ()=>dispatch(GetTemplates()),
     }
 }
 @hot(module)
@@ -37,7 +37,6 @@ export default class extends Component {
 
     componentWillReceiveProps(nProps){
         if(nProps.templateList !== undefined && nProps.templateList !== null && this.state.templates_length !== nProps.templateList.length && nProps.templateList.length > 0){
-            console.log(nProps.templateList)
             let mains = []
             let subs = {}
             for(let t of nProps.templateList){
@@ -97,7 +96,13 @@ export default class extends Component {
                         <div className="title">템플릿 선택</div>
                     </div>
                     <div className="btn-container">
-                        <div className="btn" onClick={this.props.onConfirm.bind(this,this.state.templateId)}>
+                        <div 
+                            className="btn" 
+                            onClick={this.props.onConfirm.bind(this,{
+                                id : this.state.templateId, 
+                                templates: this.state.subTemplates[this.state.templateId]
+                            })}
+                            >
                                 <img alt="선택" src={require('../resources/icon_template_select.png')} />
                             </div>
                         <div className="btn" onClick={this.props.onQuit}>
@@ -112,11 +117,11 @@ export default class extends Component {
                                 return(
                                     <div 
                                         className="item" key={`template-item${idx}`} 
-                                        onClick={this.onClickTemplate.bind(this,raw.id)}
+                                        onClick={this.onClickTemplate.bind(this,raw.category_id)}
                                         onMouseEnter={this.onHoverTemplate.bind(this,raw.id)}
                                         onMouseLeave={this.outHoverTemplate.bind(this)}
                                         >
-                                        <img alt={`main-img${raw.id}`} src={raw.frame}></img>
+                                        <img alt={`main-img${raw.id}`} src={raw.frame} style={this.state.templateId === raw.category_id ? {borderTop : '10px solid #7EC1DA',borderRadius: '10px'} : {}}/>
                                         <div className="hover-div" style={this.state.hoverId===raw.id ? {display : 'flex'} : {}}>
                                             {subTemplates[raw.category_id] !== undefined && subTemplates[raw.category_id].map((raw,idx)=>{
                                                 return(
@@ -135,11 +140,13 @@ export default class extends Component {
                                 return(
                                     <div 
                                         className="item" key={`template-item${idx}`} 
-                                        onClick={this.onClickTemplate.bind(this,raw.id)}
+                                        onClick={this.onClickTemplate.bind(this,raw.category_id)}
                                         onMouseEnter={this.onHoverTemplate.bind(this,raw.id)}
                                         onMouseLeave={this.outHoverTemplate.bind(this)}
                                         >
-                                        <img alt={`main-img${raw.id}`} src={raw.frame}></img>
+                                        <img alt={`main-img${raw.id}`} src={raw.frame} 
+                                            style={this.state.templateId === raw.category_id ? {borderTop : '10px solid #7EC1DA',borderRadius: '10px'} : {}}
+                                        />
                                         <div className="hover-div" style={this.state.hoverId===raw.id ? {display : 'flex'} : {}}>
                                             {subTemplates[raw.category_id] !== undefined && subTemplates[raw.category_id].map((raw,idx)=>{
                                                 return(

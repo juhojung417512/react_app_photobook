@@ -42,13 +42,6 @@ export default class extends Component {
             this.setState({
                 isVisible : nProps.isVisible
             })
-            let pos = null
-            if(nProps.isVisible === false)
-                pos = transform2pos(ReactDOM.findDOMNode(this.refs.DragContainer).style.transform)
-            setTimeout(()=>{
-                this.props.onForceDrag(pos)
-                this.props.onForceResize(this.state.size)
-            } , 100)
         } else if(this.state.dragForcePos !== nProps.dragForcePos){
             this.setState({
                 dragForcePos : nProps.dragForcePos

@@ -44,15 +44,12 @@ export const RESIZE_START_SLOT = "RESIZE_START_SLOT"
 // server
 export const SET_PATH_NEW_PHOTOBOOK = "SET_PATH_NEW_PHOTOBOOK"
 export const SELECT_TEMPLATE = "SELECT_TEMPLATE"
+export const GET_TEMPLATE_CATEGORY_ID = "GET_TEMPLATE_CATEGORY_ID"
 export const NEW_PHOTOBOOK = "NEW_PHOTOBOOK"
 export const LOAD_PHOTOBOOK = "LOAD_PHOTOBOOK"
 export const SAVE_PHOTOBOOK = "SAVE_PHOTOBOOK"
 export const GET_ALL_DATA = "GET_ALL_DATA"
 export const REFRESH_ALL_DATA = "REFRESH_ALL_DATA"
-
-export const SetPathNewPhotobook = actions(SET_PATH_NEW_PHOTOBOOK, async(id)=>{
-    return await Network.init().post('/photobook/setID',id)
-})
 
 export const RefreshAllData = actions(REFRESH_ALL_DATA, ()=>{
     return true
@@ -62,25 +59,29 @@ export const GetAllData = actions(GET_ALL_DATA , () =>{
     return true
 })
 
-export let GetPhotobookList = actions(GET_PHOTOBOOK_LIST, async ()=>{
-    return await Network.init().get('/photobook/get')
+export let GetPhotobookList = actions(GET_PHOTOBOOK_LIST, async (userId)=>{
+    return await Network.init().get(`/photobook/get/${userId}`)
+})
+
+export const SetPathNewPhotobook = actions(SET_PATH_NEW_PHOTOBOOK, async(path)=>{
+    return await Network.init().post('/photobook/path',path)
 })
 
 export let SelectTemplate = actions( SELECT_TEMPLATE, (id)=>{
     return id
 })
 
-export let NewPhotobook = actions(NEW_PHOTOBOOK, async (id)=>{
+export let NewPhotobook = actions(NEW_PHOTOBOOK, async (data)=>{
     // id -> 서버에 저장되는 포토북 id
-    return await Network.init().post('/photobook/new',{id:id})
+    return await Network.init().post('/photobook/new',{id:data.id, name : data.name, templateCategoryId : data.templateCategoryId, userId : data.userId})
 })
 
 export let LoadPhotobook = actions(LOAD_PHOTOBOOK, async (id)=>{
     return await Network.init().get(`/photobook/load/${id}`)
 })
 
-export let SavePhotobook = actions(SAVE_PHOTOBOOK, async (data)=>{
-    return await Network.init().post('/photobook/save',{data : data})
+export let SavePhotobook = actions(SAVE_PHOTOBOOK, async (id, data)=>{
+    return await Network.init().post('/photobook/save',{id : id, data : data})
 })
 
 export let SetTemaplteIdx = actions( SET_TEMPLATE_IDX, (idx)=>{

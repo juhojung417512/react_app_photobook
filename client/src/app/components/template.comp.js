@@ -98,6 +98,7 @@ export default class extends Component {
         this.state = {
             isCreate : false,
             isPreview : false,
+            isVisible : false,
             photos : [],
             stickers: [],
             textboxes : [],
@@ -128,6 +129,17 @@ export default class extends Component {
     componentWillReceiveProps(nProps) {
         let stateStore = {}
         //Create & Delete
+        if(this.state.isVisible !== nProps.isVisible){
+            this.setState({
+                isVisible : nProps.isVisible
+            },()=>{
+                if(nProps.isVisible){
+                    this.setState({
+                        previewTime : true
+                    })
+                }
+            })
+        }
         if(this.props.photos !== nProps.photos && nProps.photos !== undefined){
             stateStore.photos = nProps.photos
             stateStore.photosForceDragPos = nProps.photosForceDragPos
@@ -332,17 +344,18 @@ export default class extends Component {
     }
 
     componentDidUpdate = (props, state)=>{
-        if(this.state.previewTime === true && eval("this.refs.template"+ this.props.templateIdx) !== undefined){
+        if(this.state.previewTime === true && eval("this.refs.template"+ this.props.templateIdx) !== undefined && this.props.isVisible){
             this.setState({
                 previewTime : false
             })
             let t = eval("this.refs.template"+ this.props.templateIdx)
             this.props.updatePreview(eval("this.refs.template"+ this.props.templateIdx),`translate(0, -${this.refs.templateImg.clientHeight / 2 * PreviewDivideValue}px)`)
-            setTimeout(()=>{
+            let st = setTimeout(()=>{
                 this.setState({
                     previewTime : true
                 })
             },500)
+            window.timeoutList.push(st)
         }
     }
 

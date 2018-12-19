@@ -3,15 +3,18 @@ import { hot } from 'react-hot-loader'
 import { connect } from 'react-redux';
 
 import { 
+    GetPhotobookList
 } from "../common/actions"
 
 let mapStateToProps = (state)=>{
     return {
+        photobookList : state.photobook.photobookList
 	}
 }
 
 let mapDispatchToProps = (dispatch) => {
     return {
+        GetPhotobookList : (userId)=>dispatch(GetPhotobookList(userId))
     }
 }
 @hot(module)
@@ -20,14 +23,21 @@ export default class extends Component {
     constructor() {
         super();
         this.state = {
-            selectId : null
+            selectId : null,
+            photobookList : null
         };
     }
 
     componentDidMount(){
+        this.props.GetPhotobookList(this.props.userId)
     }
 
     componentWillReceiveProps(nProps){
+        if(this.state.photobookList !== nProps.photobookList && nProps.photobookList !== null){
+            this.setState({
+                photobookList : nProps.photobookList
+            })
+        }
     }
 
     onClickItem = (id)=>{
@@ -61,7 +71,6 @@ export default class extends Component {
                                     return(
                                         <div className="item-box" key={`photobook-item${idx}`} >
                                             <div className={`item ${this.state.selectId === raw.id ? 'selected' : ''}`} 
-                                                
                                                 onClick={this.onClickItem.bind(this,raw.id)}>{raw}
                                             </div>
                                             <div className="line-break"></div>
@@ -71,7 +80,6 @@ export default class extends Component {
                                 return(
                                     <div className="item-box" key={`photobook-item${idx}`} >
                                         <div className={`item ${this.state.selectId === raw.id ? 'selected' : ''}`} 
-                                            
                                             onClick={this.onClickItem.bind(this,raw.id)}>{raw}
                                         </div>
                                     </div>
