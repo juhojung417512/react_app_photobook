@@ -419,7 +419,7 @@ body{
                     border-radius: 18px;
                     width: 35vh;
                     height: 40px;
-                    font-size:25px;
+                    font-size:20px;
                     cursor: pointer;
                     &:hover{
                         background-color : #CCE1EB;
@@ -532,7 +532,7 @@ body{
                 .top{
                     display:flex;
                     .top-item{
-                        padding: 0px 10px;
+                        padding: 0px 10px 5px 10px;
                         display:flex;
                         flex-direction: column;
                         justify-content: center;
@@ -540,8 +540,8 @@ body{
                         flex:1;
                         font-size:13px;
                         >img{
-                            width: 75%;
-                            height: 65%;
+                            width: 5vw;
+                            height: 9vh;
                         }
                         cursor: pointer;
                         &:hover{

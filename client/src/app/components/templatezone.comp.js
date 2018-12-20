@@ -25,7 +25,9 @@ export default class extends Component {
     constructor() {
         super();
         this.state = {
-            templateIndex : null
+            templateIndex : null,
+            templateList : [],
+            isLoading : true
         };
     }
 
@@ -36,6 +38,33 @@ export default class extends Component {
                 templateIndex : nProps.templateIndex
             })
         }
+        if(this.state.templateList !== null && nProps.templateList !== undefined 
+            && nProps.templateList !== null){
+            if(nProps.templateList.length !== 0){
+                let templateList = []
+                for(let t of nProps.templateList){
+                    if(t.isMain){
+                        let d = {}
+                        d['main'] = t
+                        for(let sub of nProps.templateList){
+                            if(t.category_id === sub.category_id && !sub.isMain){
+                                d['sub'] = sub
+                                break
+                            }
+                        }
+                        templateList.push(d)
+                    }
+                }
+                this.setState({
+                    templateList : templateList,
+                    isLoading : false
+                })
+            } else {
+                this.setState({
+                    isLoading : false
+                })
+            }
+        }
     }
 
     componentDidMount() {
@@ -43,7 +72,7 @@ export default class extends Component {
     }
 
     onClickTemplate = (templateId) =>{
-        this.props.setTemplate(templateId)
+        this.props.setTemplate(templateId) // -> 템플릿 미리보기 (의견 답변 날아오는대로 수정)
     }
 
     onClickTemplateDelete = ()=> {
@@ -53,26 +82,32 @@ export default class extends Component {
     render() {
         return (
             <div className="tools">
+                {this.state.isLoading &&
+                    <div className="loading-square">
+                        <div className="loading-spin">
+                        </div>
+                    </div>
+                }
+                {!this.state.isLoading && this.state.templateList.length > 0 ? 
                 <div className="template-list">
                     <div className="div-divider">
-                        {this.props.templateList ? this.props.templateList.map((item,idx)=>{
-                            if(idx % 2 !==0)
-                                return
+                        {this.state.templateList.map((item,idx)=>{
                             return(<div key={idx} className="template-icon">
-                                    <img draggable={false} alt={`template ${idx}`} src={item.frame} onClick={this.onClickTemplate.bind(this,item.id)}/>
+                                    <img draggable={false} alt={`template-main ${idx}`} src={item['main'].frame} onClick={this.onClickTemplate.bind(this,item['main'].category_id)}/>
                                 </div>)
-                        }) : <div></div>}
+                        })}
                     </div>
                     <div className="div-divider">
-                        {this.props.templateList ? this.props.templateList.map((item,idx)=>{
-                            if(idx % 2 ===0)
-                                return
+                        {this.state.templateList.map((item,idx)=>{
                             return(<div key={idx} className="template-icon">
-                                    <img draggable={false} alt={`template ${idx}`} src={item.frame} onClick={this.onClickTemplate.bind(this,item.id)}/>
+                                    <img draggable={false} alt={`template-sub ${idx}`} src={item['sub'].frame} onClick={this.onClickTemplate.bind(this,item['sub'].category_id)}/>
                                 </div>)
-                        }) : <div></div>}
+                        })}
                     </div>
                 </div>
+                : 
+                <div className="alert">템플릿을 불러오지 못했습니다.</div>
+                }
             </div>
         );
     }
