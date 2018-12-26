@@ -92,7 +92,7 @@ export let GetTemplates = actions( GET_TEMPLATES, async()=>{
     return await Network.init().get('/templates')
 })
 
-export let GetTemplateInfo = actions( GET_TEMPLATE_INFO, async(templateId)=>{
+export let GetTemplateInfo = actions( NEW_PHOTOBOOK, async(templateId)=>{
     return await Network.init().get(`/template/${templateId}`)
 })
 

@@ -1,4 +1,4 @@
-.new-photobook-container , .load-photobook-container, .template-select-container{
+.new-photobook-container , .load-photobook-container, .template-select-container, .preview-template-container{
     justify-content: center;
     align-items: center;
     z-index : 99;
@@ -252,6 +252,31 @@
                     img{
                         width : 200px;
                         margin : 5px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.preview-template-container{
+    .container{
+        .title{
+            font-size : 15px;
+        }
+        .content-container{
+            .template-container{
+                min-height : 50vh;
+                min-width : 10vh;
+                display: flex;
+                flex-flow: wrap;
+                overflow : auto;
+                padding-left: 5vw;
+                margin-top : 5vh;
+                .item{
+                    img{
+                        width : 20vw;
+                        height : 15vh;
                     }
                 }
             }

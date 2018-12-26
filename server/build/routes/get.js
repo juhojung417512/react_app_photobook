@@ -115,9 +115,9 @@ router.get('/templates', async function (req, res) {
 });
 
 router.get('/template/:id', async function (req, res) {
-    var template = await _sqlmgr2.default.getTemplateById(req.params.id);
+    var templates = await _sqlmgr2.default.getTemplatesByCategoryId(req.params.id);
     return res.json({
-        template: template
+        res: templates
     });
 });
 

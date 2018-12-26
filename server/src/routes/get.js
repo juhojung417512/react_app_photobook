@@ -58,9 +58,9 @@ router.get('/templates',async (req,res)=>{
 })
 
 router.get('/template/:id',async (req,res)=>{
-    let template = await mysql.getTemplateById(req.params.id)
+    let templates = await mysql.getTemplatesByCategoryId(req.params.id)
     return res.json({
-        template : template
+        res : templates
     })
 })
 

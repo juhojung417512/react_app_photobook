@@ -27,7 +27,8 @@ export default class extends Component {
         this.state = {
             templateIndex : null,
             templateList : [],
-            isLoading : true
+            isLoading : true,
+            selectTemplateId : null
         };
     }
 
@@ -72,12 +73,36 @@ export default class extends Component {
     }
 
     onClickTemplate = (templateId) =>{
-        this.props.setTemplate(templateId) // -> 템플릿 미리보기 (의견 답변 날아오는대로 수정)
+        if(this.state.selectTemplateId !== templateId){
+            this.setState({
+                selectTemplateId : templateId,
+            })
+        } else{
+            this.setState({
+                selectTemplateId : null
+            })
+        }
     }
 
-    onClickTemplateDelete = ()=> {
-        this.props.setTemplate(null)
+    onClickPreview = async ()=>{
+        let res = await this.getTemplateData(this.state.selectTemplateId)
+        this.props.viewTemplate(this.state.selectTemplateId,res)
     }
+
+    getTemplateData = (categoryId) =>{
+        return new Promise((r)=>{
+            let l = []
+            for(let t of this.props.templateList){
+                if(t.category_id === categoryId && !t.isMain)
+                    l.push(t)
+            }
+            r(l)
+        })
+    }
+
+    // onClickTemplateDelete = ()=> {
+    //     this.props.setTemplate(null)
+    // }
 
     render() {
         return (
@@ -90,24 +115,19 @@ export default class extends Component {
                 }
                 {!this.state.isLoading && this.state.templateList.length > 0 ? 
                 <div className="template-list">
-                    <div className="div-divider">
                         {this.state.templateList.map((item,idx)=>{
-                            return(<div key={idx} className="template-icon">
+                            return(<div key={idx} className={`template-icon ${this.state.selectTemplateId === item['main'].category_id ? 'active' : ''}`}>
                                     <img draggable={false} alt={`template-main ${idx}`} src={item['main'].frame} onClick={this.onClickTemplate.bind(this,item['main'].category_id)}/>
-                                </div>)
-                        })}
-                    </div>
-                    <div className="div-divider">
-                        {this.state.templateList.map((item,idx)=>{
-                            return(<div key={idx} className="template-icon">
                                     <img draggable={false} alt={`template-sub ${idx}`} src={item['sub'].frame} onClick={this.onClickTemplate.bind(this,item['sub'].category_id)}/>
                                 </div>)
                         })}
-                    </div>
                 </div>
                 : 
                 <div className="alert">템플릿을 불러오지 못했습니다.</div>
                 }
+                <div className="template-preview" onClick={this.onClickPreview}>
+                    <img alt="미리보기" src={require('../resources/template_preview.png')} />
+                </div>
             </div>
         );
     }

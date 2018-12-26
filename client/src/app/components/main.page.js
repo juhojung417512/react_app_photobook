@@ -21,6 +21,7 @@ import Preview from './preview.comp'
 import TemplateSelectComp from './templateselect.comp'
 import NewPhotobookComp from './newphotobook.comp'
 import LoadPhotobookComp from './loadphotobook.comp'
+import TemplatePreviewComp from './templatepreview.comp'
 
 import {
     SetTemaplteIdx,
@@ -125,7 +126,9 @@ export default class extends Component {
             isGetAllData : false,
             isCreatePhotobook : false,
             userId : null,
-            photobookId : null
+            photobookId : null,
+            isPreviewTemplate : false,
+            previewTemplateId : null
         };
     }
 
@@ -215,7 +218,8 @@ export default class extends Component {
             templateIndex : 0,
             dividerState : 'Template',
             isNewPhotobook : false,
-            isLoadPhotobook : false
+            isLoadPhotobook : false,
+            isPreviewTemplate : false
         })
     }
 
@@ -312,11 +316,20 @@ export default class extends Component {
         }
     }
 
-    setTemplateId = (id)=>{
-        this.state.templateIds[this.state.templateIndex] = id
-        this.props.GetTemplateInfo(id)
+    viewTemplate = (id, data)=>{
         this.setState({
-            templateIds : this.state.templateIds,
+            isPreviewTemplate : true,
+            previewTemplateId : id,
+            previewTemplateData : data
+        })
+    }
+
+    onClickTemplatePreview = (flag) =>{
+        if(flag){
+            this.props.GetTemplateInfo(this.state.previewTemplateId)
+        }
+        this.setState({
+            isPreviewTemplate : false
         })
     }
 
@@ -405,11 +418,10 @@ export default class extends Component {
                 photobookId : data.id,
                 isNewPhotobook : false
             })
-            console.log(data)
             if(data.templateCategoryId !== undefined)
                 this.props.NewPhotobook(data)
             else
-                this.onClickSave(null)
+                this.onClickSave(null) // not template select case
         } else{
             this.setState({
                 isNewPhotobook : false
@@ -442,7 +454,6 @@ export default class extends Component {
     }
 
     onClickSave = (data)=>{
-        console.log(data,this.state.photobookId)
         if(data === null){
             if(this.state.photobookId === null){
                 // first save photobook
@@ -481,6 +492,12 @@ export default class extends Component {
                     </div>
                 </div>
             }
+            {this.state.isPreviewTemplate &&
+                <TemplatePreviewComp 
+                    templateCategoryData={this.state.previewTemplateData}
+                    onConfirm={this.onClickTemplatePreview.bind(this,true)}
+                    onQuit={this.onClickTemplatePreview.bind(this,false)}
+                />}
             {this.state.isTemplateSelect &&
                 <TemplateSelectComp
                     onConfirm={(id)=>this.onClickTSComp(true,id)} 
@@ -553,7 +570,7 @@ export default class extends Component {
                     
                     {this.state.dividerState === 'Template' ? 
                         <Templatezone 
-                            setTemplate={(templateId)=>{this.setTemplateId(templateId)}} 
+                            viewTemplate={(templateId,data)=>{this.viewTemplate(templateId,data)}} 
                             templateIndex={this.state.templateIndex}
                         />
                     : this.state.dividerState === 'Photo' ? 
@@ -582,8 +599,7 @@ export default class extends Component {
                         <div className="frame-box" ref="frameBox">
                             {this.state.templates.map((raw,idx)=>{
                                 return(<Template 
-                                        key={idx} 
-                                        GetTemplateInfo={this.props.GetTemplateInfo.bind(this)}
+                                        key={idx}
                                         templateIdx={idx}
                                         isVisible={idx === this.state.templateIndex}
                                         photoList={this.state.photoList} 

@@ -76,7 +76,7 @@ router.post('/photobook/new', async (req,res)=>{
     // new photobook row
     
     return res.json({
-        res : result,
+        res : result
     })
 })
 
