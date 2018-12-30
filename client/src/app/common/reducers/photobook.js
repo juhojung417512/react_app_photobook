@@ -449,7 +449,6 @@ export default function photobook(state=initialState, action){
         case DRAG_FORCE_SLOT : 
             let slotIdx = action.payload.idx
             let pos = action.payload.pos
-            console.log("?????",slotIdx)
             switch(action.payload.type){
                 case HISTORYS.DRAG_P: 
                     if(state.photos[slotIdx].display === false)

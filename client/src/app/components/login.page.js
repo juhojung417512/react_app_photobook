@@ -31,7 +31,8 @@ export default class extends Component {
             holdId : "",
             id: "",
             pw: "",
-            isLogin : null
+            isLogin : null,
+            isLoading : false
         };
     }
 
@@ -53,9 +54,12 @@ export default class extends Component {
 
     componentWillReceiveProps(nProps){
         if(nProps.user.isLogin && history.location.pathname !== '/main'){
-            this.props.SetLoginData(this.state.holdId)
-            history.push('/main')
+            this.onLogined()
         }
+    }
+
+    onLogined = () =>{
+        this.props.SetLoginData(this.state.holdId)
     }
 
     onClickLogin = () => {
@@ -73,6 +77,11 @@ export default class extends Component {
     render() {
         return (
             <div className="login main-page transition-item">
+                {this.state.isLoading && 
+                    <div className="loading-square">
+                        <div className="loading-spin"></div>
+                    </div>
+                }
                 <img className="top-icon" alt="login top icon" src={require('../resources/login_top_icon.png')}/>
                 <div className="content">
                     <div className="signin-txt">Sign In</div>

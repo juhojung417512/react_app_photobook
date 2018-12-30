@@ -14,7 +14,6 @@ export default function user(state=initialState, action){
             if(!action.payload.result)
                 alert("아이디 혹은 패스워드가 올바르지 않습니다.")
             else{
-                console.log(action.payload.userId)
                 window.setCookie('isLogin',true)
             }
             return {
@@ -27,6 +26,7 @@ export default function user(state=initialState, action){
             }
         case SET_LOGIN_DATA :
             window.setCookie('userId',action.payload)
+            window.location.href = "/main" // loading spin 처리해야함
             return {
                 ...state,
                 userId : action.payload
