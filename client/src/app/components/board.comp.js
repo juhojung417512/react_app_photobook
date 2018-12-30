@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { DropTarget } from 'react-dnd';
 
 import Square from './square.comp';
-import f_system from '../common/FileSystem';
+import f_system from '../common/fileSystem';
 import { ItemTypes } from '../common/constants';
 
 const squareTarget = {
