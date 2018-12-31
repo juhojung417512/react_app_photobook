@@ -9,6 +9,7 @@ import {
     Login,
     SetLoginData
 } from "../common/actions"
+import { sleep } from '../common/utils';
 
 let mapStateToProps = (state)=>{
     return {
@@ -31,7 +32,7 @@ export default class extends Component {
             holdId : "",
             id: "",
             pw: "",
-            isLogin : null,
+            isLogin : false,
             isLoading : false
         };
     }
@@ -53,13 +54,22 @@ export default class extends Component {
     }
 
     componentWillReceiveProps(nProps){
-        if(nProps.user.isLogin && history.location.pathname !== '/main'){
+        if(nProps.user.isLogin && history.location.pathname !== '/main' && this.state.isLogin !== nProps.user.isLogin){
+            this.setState({
+                isLogin : nProps.user.isLogin,
+                isLoading : true
+            })
             this.onLogined()
         }
     }
 
-    onLogined = () =>{
+    onLogined = async () =>{
         this.props.SetLoginData(this.state.holdId)
+        await sleep(3000)
+        this.props.history.push('/main');
+        this.setState({
+            isLoading : false
+        })
     }
 
     onClickLogin = () => {
@@ -76,11 +86,14 @@ export default class extends Component {
 
     render() {
         return (
-            <div className="login main-page transition-item">
+            <div className="login-container login main-page transition-item">
                 {this.state.isLoading && 
-                    <div className="loading-square">
-                        <div className="loading-spin"></div>
+                    <div className="modal-container">
+                        <div className="loading-square">
+                            <div className="loading-spin"></div>
+                        </div>
                     </div>
+                    
                 }
                 <img className="top-icon" alt="login top icon" src={require('../resources/login_top_icon.png')}/>
                 <div className="content">
