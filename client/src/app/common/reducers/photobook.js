@@ -208,6 +208,7 @@ export default function photobook(state=initialState, action){
                     ...photobookInit
                 }
                 s.template = res[i]
+                s.templateIndex = i
                 StateStoreManager.setTemplateStateStore(s,i)
             }
             let store = StateStoreManager.getStateStore()

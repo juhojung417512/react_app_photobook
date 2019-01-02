@@ -82,7 +82,8 @@ export default class extends Component {
             await sleep(1000)
         }
         this.setState({
-            isPathSelect : false
+            isPathSelect : false,
+            isLoading : false
         })
     }
     onChangeName = (e)=>{
